@@ -44,5 +44,5 @@
 
 ## Desenvolvimento ✏
 
-**Feito por**: [João Pedro Lobato](https://github.com/PJBHL)
+**Feito por**: [João Pedro Lobato](https://github.com/PJBHL)  
 **Feito por**: [Vinícius Henrique Giovanini](https://github.com/viniciushgiovanini)
