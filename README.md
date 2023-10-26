@@ -1,4 +1,4 @@
-# Segmentação e Reconhecimento de célulasw em exames de Papanicolau
+# Segmentação e Reconhecimento de células em exames de Papanicolau
 
 
 ## Distribuição do repositório
