@@ -160,4 +160,4 @@ cython_debug/
 #.idea/
 
 # my
-/src/AI/dataset/
+/src/AI/data/
