@@ -56,7 +56,7 @@ class Zoom_Advanced(ttk.Frame):
         self.canvas.bind('<Configure>', self.show_image)  # canvas is resized
         self.canvas.bind('<ButtonPress-1>', self.move_from)
         self.canvas.bind('<B1-Motion>',     self.move_to)
-        # with Windows and MacOS, but not Linux
+        # with window and MacOS, but not Linux
         self.canvas.bind('<MouseWheel>', self.wheel)
         # only with Linux, wheel scroll down
         self.canvas.bind('<Button-5>',   self.wheel)
@@ -112,7 +112,7 @@ class Zoom_Advanced(ttk.Frame):
         else:
             return  # zoom only inside image area
         scale = 1.0
-        # Respond to Linux (event.num) or Windows (event.delta) wheel event
+        # Respond to Linux (event.num) or window (event.delta) wheel event
         if event.num == 5 or event.delta == -120:  # scroll down
             i = min(self.width, self.height)
             if int(i * self.imscale) < 30:
@@ -180,7 +180,7 @@ def selecionar_imagem():
 
     nome_final_arquivo = nome_arquivo[len(nome_arquivo)-1]
 
-    campo_input.insert(0, nome_final_arquivo)
+    Zoom_Advanced(window, path=arquivo)
 
   
 
@@ -189,35 +189,22 @@ def selecionar_imagem():
 #############################################
 
 # Inicializar a janela
-windows = tk.Tk()
-windows.geometry("900x600")
-windows.title("Análise do Exame de Papanicolau")
+window = tk.Tk()
+window.title("Análise do Exame de Papanicolau")
+width = window.winfo_screenwidth()
+height = window.winfo_screenheight()
+pos_x = ((width - 900) // 2)
+pos_y = ((height - 900) // 2)
+
+window.geometry(f"900x900+{pos_x}+{pos_y}")
 
 # Configuracao do Grid
-windows.grid_rowconfigure(0, weight=0)
-windows.grid_columnconfigure(0, weight=1)
-
-# Campo de entrada do arquivo da imagem
-campo_input = tk.Entry(windows, width=60)
-campo_input.grid(row=1, column=0, pady=10)
-
+window.grid_rowconfigure(0, weight=0)
+window.grid_columnconfigure(0, weight=1)
 
 botao_enviar = tk.Button(
-    windows, text="Selecionar Imagem", command=selecionar_imagem)
+    window, text="Selecionar Imagem", command=selecionar_imagem)
 botao_enviar.grid(row=2, column=0, pady=10)
 
-botao_preview = tk.Button(
-    windows, text="Abrir Imagem", command=lambda: Zoom_Advanced(windows, path=arquivo))
-botao_preview.grid(row=3, column=0, pady=10)
-
-
-# # Exibir imagem no canvas
-# canvas = tk.Canvas(windows, width=400, height=400, state="disabled")
-# canvas.grid(row=4, column=0, pady=10)
-
-# # Label para exebir a imagem
-# label_imagem = tk.Label(windows)
-# label_imagem.grid(row=6, column=0, pady=5)
-
 # Iniciar o loop da interface
-windows.mainloop()
+window.mainloop()
