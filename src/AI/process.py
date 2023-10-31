@@ -9,56 +9,23 @@ import shutil
 
 
 class Process():
-  def __init__(self):
-    self.diretorio_dataset = '../AI/data/dataset/'
-    self.diretorio_dataset_recortado = "./data/dataset_recortado/"
-    self.value_expand = 50
-    self.img_analisada = None
-    
+  def __init__(self, n):
+    self.value_expand = n
+
     
   def limparDiretorio(self, path):
     for arquivo in os.listdir(path):
       caminho_arquivo = os.path.join(path, arquivo)
       if os.path.isfile(caminho_arquivo):
           os.remove(caminho_arquivo)
-          
-  def cutDataset(self):
-    df = pd.read_csv("./data/filter_classifications.csv")
-
-    for each in df.iterrows():
-      
-      nome_img = each[1]['image_filename']
-      nome_da_doenca = each[1]['bethesda_system']
-      posi_x = each[1]['nucleus_x']
-      posi_y = each[1]['nucleus_y']  
-      
-      path_imagem_dataset_original = f'{self.diretorio_dataset}{nome_img}'
-
-      # Verifica se a iamgem existe
-      if(os.path.isfile(path_imagem_dataset_original)):
-        # Onde ele vai ler cada imagem;
-        img = cv2.imread(path_imagem_dataset_original)
-        
-        x1 = posi_x - self.value_expand
-        y1 = posi_y - self.value_expand
-        x2 = posi_x + self.value_expand
-        y2 = posi_y + self.value_expand
-        
-        # Recortando a imagem;
-        img_recortada = img[posi_y-self.value_expand:posi_y+self.value_expand, posi_x-self.value_expand:posi_x+self.value_expand]
-        
-        # Verifica se existe um folder no destino com o nome da doenca;
-        if not os.path.exists(os.path.join(self.diretorio_dataset_recortado, nome_da_doenca)):
-          os.mkdir(os.path.join(self.diretorio_dataset_recortado, nome_da_doenca))
-          
-        # Salva a imagem recortada no novo destino
-        cv2.imwrite(f'{self.diretorio_dataset_recortado}{nome_da_doenca}/' + f'{nome_da_doenca}_{posi_x}_{posi_y}_{nome_img}', img_recortada)
-        
-        # Limpar a variavel cv2
-        cv2.destroyAllWindows()
         
   def markNucImage(self, path_image):
     df = pd.read_csv("./data/classifications.csv")
+    
+    # Determinando valor 100 caso nao for passado o valor de N
+    if not (isinstance(self.value_expand, int)):
+      self.value_expand = 100
+      
     
     # Fazendo caminho de onde vai ser salvo as imagens analisadas
     path_preview = os.getcwd() + '/data/tmp_img_preview/'
@@ -98,11 +65,6 @@ class Process():
           # Onde ele vai ler cada imagem;
           img = cv2.imread(path_imagem_dataset_original)
           
-          
-          
-          print(nome_da_doenca)
-          print(nome_img)
-          
           x1 = posi_x - self.value_expand
           y1 = posi_y - self.value_expand
           x2 = posi_x + self.value_expand
@@ -126,7 +88,7 @@ class Process():
 ###################### 
 if __name__ == "__main__":
  
- obj = Process()
+ obj = Process(20)
  obj.markNucImage("D:\AREA_DE_TRABALHO\Faculdade_6_Periodo\pai\pai-papanicolau\src\AI\data/dataset/1c900ddde4d55e63c0d06c4854b29f89.png")
       
 
