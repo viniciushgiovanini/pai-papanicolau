@@ -12,16 +12,16 @@ class Process():
   def __init__(self):
     self.diretorio_dataset = '../AI/data/dataset/'
     self.diretorio_dataset_recortado = "./data/dataset_recortado/"
-    self.diretorio_dataset_marcado = "./data/dataset_marcado/"
     self.value_expand = 50
     self.img_analisada = None
-        
-  def setExpandValue(self, value_expand):
-   self.value_expand = value_expand
-   
-  def setImgAnalisada(self, img_analisada):
-   self.img_analisada = img_analisada
-  
+    
+    
+  def limparDiretorio(self, path):
+    for arquivo in os.listdir(path):
+      caminho_arquivo = os.path.join(path, arquivo)
+      if os.path.isfile(caminho_arquivo):
+          os.remove(caminho_arquivo)
+          
   def cutDataset(self):
     df = pd.read_csv("./data/filter_classifications.csv")
 
@@ -57,13 +57,30 @@ class Process():
         # Limpar a variavel cv2
         cv2.destroyAllWindows()
         
-  def markNucImage(self):
-    df = pd.read_csv("./data/filter_classifications.csv")
-
-    nome_img_selecionada = self.img_analisada
-
-    if(os.path.isfile(f'./data/dataset/{nome_img_selecionada}')):
-      shutil.copy(f'{self.diretorio_dataset}{nome_img_selecionada}', f'{self.diretorio_dataset_marcado}{nome_img_selecionada}')
+  def markNucImage(self, path_image):
+    df = pd.read_csv("./data/classifications.csv")
+    
+    # Fazendo caminho de onde vai ser salvo as imagens analisadas
+    path_preview = os.getcwd() + '/data/tmp_img_preview/'
+    
+    # Verifica se existe o folder, caso não exista você cria ele (img_preview)
+    if not os.path.exists(path_preview):
+        os.makedirs(path_preview)
+    
+        
+    # Limpando este caminho inicialmente
+    self.limparDiretorio(path_preview)
+    
+    
+    nome_img_selecionada = path_image.split("/")
+    nome_img_selecionada = nome_img_selecionada[(len(nome_img_selecionada)-1)]
+    
+    # Copiando a imagem para o diretorio
+    shutil.copy(path_image, path_preview + nome_img_selecionada)
+    
+        
+    if (os.path.isfile(os.getcwd() + f'/data/dataset/{nome_img_selecionada}')):
+      
 
       for each in df.iterrows():
         
@@ -76,33 +93,40 @@ class Process():
         if(nome_img == nome_img_selecionada):
           
         
-          path_imagem_dataset_original = f'{self.diretorio_dataset_marcado}{nome_img_selecionada}'
+          path_imagem_dataset_original = f'{path_preview}{nome_img_selecionada}'
 
-          # Verifica se a iamgem existe
-          if(os.path.isfile(path_imagem_dataset_original)):
-            # Onde ele vai ler cada imagem;
-            img = cv2.imread(path_imagem_dataset_original)
-            
-            print(nome_da_doenca)
-            print(nome_img)
-            
-            x1 = posi_x - self.value_expand
-            y1 = posi_y - self.value_expand
-            x2 = posi_x + self.value_expand
-            y2 = posi_y + self.value_expand
+          # Onde ele vai ler cada imagem;
+          img = cv2.imread(path_imagem_dataset_original)
+          
+          
+          
+          print(nome_da_doenca)
+          print(nome_img)
+          
+          x1 = posi_x - self.value_expand
+          y1 = posi_y - self.value_expand
+          x2 = posi_x + self.value_expand
+          y2 = posi_y + self.value_expand
 
-            # Fazendo o quadrado na imagem
-            img_marcada = cv2.rectangle(img, (x1, y1), (x2, y2), (0, 255, 0), 2)
+          # Fazendo o quadrado na imagem
+          img_marcada = cv2.rectangle(img, (x1, y1), (x2, y2), (0, 255, 0), 2)
+          
+          # Escrevendo o indice na imagem
+          img_marcada = cv2.putText(img_marcada, str(img_id), (posi_x-10, posi_y-55) , cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 100, 0), 2) 
             
-            # Escrevendo o indice na imagem
-            img_marcada = cv2.putText(img_marcada, str(img_id), (posi_x-10, posi_y-55) , cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 100, 0), 2) 
-              
-            # Salva imagem com marcacao na propria imagem
-            cv2.imwrite(f'{self.diretorio_dataset_marcado}{nome_img_selecionada}', img_marcada)
-            
-            # Limpar a variavel cv2
-            cv2.destroyAllWindows()        
-        
-        
-        
-        
+          # Salva imagem com marcacao na propria imagem
+          cv2.imwrite(f'{path_preview}{nome_img_selecionada}', img_marcada)
+          
+          # Limpar a variavel cv2
+          cv2.destroyAllWindows()        
+      
+
+######################
+#   MAIN PROVISORIO  #
+###################### 
+if __name__ == "__main__":
+ 
+ obj = Process()
+ obj.markNucImage("D:\AREA_DE_TRABALHO\Faculdade_6_Periodo\pai\pai-papanicolau\src\AI\data/dataset/1c900ddde4d55e63c0d06c4854b29f89.png")
+      
+
