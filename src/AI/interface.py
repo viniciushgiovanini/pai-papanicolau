@@ -32,7 +32,6 @@ class AutoScrollbar(ttk.Scrollbar):
 
 class Zoom_Advanced(ttk.Frame):
     ''' Advanced zoom of the image '''
-
     
     def __init__(self, mainframe, path, imagem):
 
@@ -47,7 +46,7 @@ class Zoom_Advanced(ttk.Frame):
         self.canvas = tk.Canvas(self.master, highlightthickness=0,
                                 xscrollcommand=hbar.set, yscrollcommand=vbar.set)
         self.canvas.grid(row=4, column=0, sticky='nswe')
-        self.canvas.update()  # wait till canvas is created
+        # self.canvas.update()  # wait till canvas is created
         print(path)
         vbar.configure(command=self.scroll_y)  # bind scrollbars to the canvas
         hbar.configure(command=self.scroll_x)
@@ -92,6 +91,7 @@ class Zoom_Advanced(ttk.Frame):
 
       # Use itemconfig para atualizar a imagem da galinha para a do porco
       self.canvas.itemconfig(self.image, image=nova_imagem)
+      self.canvas.update()
     
     def scroll_y(self, *args, **kwargs):
         ''' Scroll canvas vertically and redraw the image '''
