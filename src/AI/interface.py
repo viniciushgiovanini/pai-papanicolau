@@ -1,10 +1,12 @@
+import os
+import sys
 import tkinter as tk
-from PIL import Image, ImageTk
 from tkinter import filedialog
 import random
 import tkinter as tk
 from tkinter import ttk
 from PIL import Image, ImageTk
+from process import Process
 
 #############################################
 #                 Metodos                   #
@@ -34,7 +36,6 @@ class Zoom_Advanced(ttk.Frame):
 
         ''' Initialize the main Frame '''
         ttk.Frame.__init__(self, master=mainframe)
-        self.master.title('Zoom with mouse wheel')
         # Vertical and horizontal scrollbars for canvas
         vbar = AutoScrollbar(self.master, orient='vertical')
         hbar = AutoScrollbar(self.master, orient='horizontal')
@@ -182,6 +183,19 @@ def selecionar_imagem():
 
     Zoom_Advanced(window, path=arquivo)
 
+def definir_nucleos(arquivo, imagem, imagem_tk):
+    # if imagem_tk:
+    #     imagem_tk.destroy()
+    print(arquivo)
+    obj = Process(50)
+    obj.markNucImage(arquivo)
+    path_new = os.getcwd() + '/data/tmp_img_preview/00b1e59ebc3e7be500ef7548207d44e2.png'
+    imagem = Image.open(path_new)
+    imagem_tk = ImageTk.PhotoImage(imagem)
+
+    Zoom_Advanced(window, path_new)
+    
+
   
 
 #############################################
@@ -202,9 +216,17 @@ window.geometry(f"900x900+{pos_x}+{pos_y}")
 window.grid_rowconfigure(0, weight=0)
 window.grid_columnconfigure(0, weight=1)
 
+# Botão para seleção e visualização com zoom de uma imagem.
 botao_enviar = tk.Button(
     window, text="Selecionar Imagem", command=selecionar_imagem)
 botao_enviar.grid(row=2, column=0, pady=10)
+
+# Entrada de "N" - valor de expansão de seleção do núcleo
+# A fazer --
+
+# Botão para marcação de núcleo da imagem selecionada anteriormente.
+botao_nucleo = tk.Button(window, text="Expandir Núcleos", command=lambda:definir_nucleos(arquivo, imagem, imagem_tk))
+botao_nucleo.grid(row=1, column=0, pady=10)
 
 # Iniciar o loop da interface
 window.mainloop()

@@ -20,7 +20,7 @@ class Process():
           os.remove(caminho_arquivo)
         
   def markNucImage(self, path_image):
-    df = pd.read_csv("./data/classifications.csv")
+    df = pd.read_csv(os.getcwd() + "/data/classifications.csv")
     
     # Determinando valor 100 caso nao for passado o valor de N
     if not (isinstance(self.value_expand, int)):
@@ -86,9 +86,8 @@ class Process():
 ######################
 #   MAIN PROVISORIO  #
 ###################### 
-if __name__ == "__main__":
+# if __name__ == "__main__":
  
- obj = Process(20)
- obj.markNucImage("D:\AREA_DE_TRABALHO\Faculdade_6_Periodo\pai\pai-papanicolau\src\AI\data/dataset/1c900ddde4d55e63c0d06c4854b29f89.png")
+#  obj = Process(50)
       
 
