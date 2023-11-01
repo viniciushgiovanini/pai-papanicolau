@@ -81,8 +81,6 @@ class Process():
           
           # Limpar a variavel cv2
           cv2.destroyAllWindows()        
-      
-
 ######################
 #   MAIN PROVISORIO  #
 ###################### 

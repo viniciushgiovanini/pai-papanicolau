@@ -232,7 +232,7 @@ class UInterface:
     
     obj = Process(50)
     obj.markNucImage(self.arquivo)
-    novo_arquivo = os.getcwd() + '/data/tmp_img_preview/00b1e59ebc3e7be500ef7548207d44e2.png'
+    novo_arquivo = os.getcwd() + '/data/tmp_img_preview/363b6b00d925e5c52694b8f7b678c53b.png'
     print("LEU O ARQUIVO")
     nova_img = Image.open(novo_arquivo)
     print("JOGOU IMAGEM PRA VARIAVEL")
