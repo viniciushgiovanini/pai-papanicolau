@@ -20,7 +20,10 @@ class Process():
           os.remove(caminho_arquivo)
         
   def markNucImage(self, path_image):
-    df = pd.read_csv(os.getcwd() + "/data/classifications.csv")
+    
+    print(os.getcwd())
+    
+    df = pd.read_csv(os.getcwd() + "/AI/data/classifications.csv")
     
     # Determinando valor 100 caso nao for passado o valor de N
     if not (isinstance(self.value_expand, int)):
@@ -28,7 +31,7 @@ class Process():
       
     
     # Fazendo caminho de onde vai ser salvo as imagens analisadas
-    path_preview = os.getcwd() + '/data/tmp_img_preview/'
+    path_preview = os.getcwd() + '/AI/data/tmp_img_preview/'
     
     # Verifica se existe o folder, caso não exista você cria ele (img_preview)
     if not os.path.exists(path_preview):
@@ -46,7 +49,7 @@ class Process():
     shutil.copy(path_image, path_preview + nome_img_selecionada)
     
         
-    if (os.path.isfile(os.getcwd() + f'/data/dataset/{nome_img_selecionada}')):
+    if (os.path.isfile(os.getcwd() + f'/AI/data/dataset/{nome_img_selecionada}')):
       
 
       for each in df.iterrows():

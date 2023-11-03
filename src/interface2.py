@@ -6,12 +6,16 @@ import random
 import tkinter as tk
 from tkinter import ttk
 from PIL import Image, ImageTk
-from process import Process
-from tkinter import PhotoImage
+from AI.process import Process
 
 #############################################
 #                 Metodos                   #
 #############################################
+
+# label_imagem = None
+# imagem = None
+# imagem_tk = None
+
 class AutoScrollbar(ttk.Scrollbar):
     ''' A scrollbar that hides itself if it's not needed.
         Works only if you use the grid geometry manager '''
@@ -32,8 +36,8 @@ class AutoScrollbar(ttk.Scrollbar):
 
 class Zoom_Advanced(ttk.Frame):
     ''' Advanced zoom of the image '''
-    
-    def __init__(self, mainframe, path, imagem):
+
+    def __init__(self, mainframe, path):
 
         ''' Initialize the main Frame '''
         ttk.Frame.__init__(self, master=mainframe)
@@ -46,8 +50,7 @@ class Zoom_Advanced(ttk.Frame):
         self.canvas = tk.Canvas(self.master, highlightthickness=0,
                                 xscrollcommand=hbar.set, yscrollcommand=vbar.set)
         self.canvas.grid(row=4, column=0, sticky='nswe')
-        # self.canvas.update()  # wait till canvas is created
-        print(path)
+        self.canvas.update()  # wait till canvas is created
         vbar.configure(command=self.scroll_y)  # bind scrollbars to the canvas
         hbar.configure(command=self.scroll_x)
         # Make the canvas expandable
@@ -86,13 +89,6 @@ class Zoom_Advanced(ttk.Frame):
             #     x0, y0, x1, y1, fill=color, activefill='black')
         self.show_image()
 
-    def atualizar_imagem(self, path):
-      nova_imagem = PhotoImage(file=path)
-
-      # Use itemconfig para atualizar a imagem da galinha para a do porco
-      self.canvas.itemconfig(self.image, image=nova_imagem)
-      self.canvas.update()
-    
     def scroll_y(self, *args, **kwargs):
         ''' Scroll canvas vertically and redraw the image '''
         self.canvas.yview(*args, **kwargs)  # scroll vertically
@@ -139,6 +135,24 @@ class Zoom_Advanced(ttk.Frame):
         self.canvas.scale('all', x, y, scale, scale)
         self.show_image()
 
+    def update_image(self, path_new):
+        if hasattr(self, 'label_image'):
+            self.label_image.grid_forget()
+
+        nova_imagem = Image.open(path_new)
+        nova_imagem_tk = ImageTk.PhotoImage(nova_imagem)
+
+        label_imagem = tk.Label(window, image=nova_imagem_tk)
+        label_imagem.image = nova_imagem_tk
+        label_imagem.grid(row=4, column=0)
+        
+        self.canvas.update()
+
+    def update(self, imagem_marcada):
+        self.image = ImageTk.PhotoImage(image=Image.fromarray(imagem_marcada))
+        self.canvas.create_image(self.canvas.winfo_width() // 2, self.canvas.winfo_height() // 2, anchor="center", image=self.image)
+        self.canvas.config(scrollregion=self.canvas.bbox("all"))
+
     def show_image(self, event=None):
         ''' Show image on the Canvas '''
         bbox1 = self.canvas.bbox(self.container)  # get image area
@@ -177,80 +191,62 @@ class Zoom_Advanced(ttk.Frame):
             self.canvas.imagetk = imagetk
 
 
-class UInterface:
-
-  def __init__(self):
-
-    #############################################
-    #                  MAIN                     #
-    #############################################
-
-    # variaveis globais da classe
-    
-    self.imagem = None
-    self.arquivo = None
-    
-    # Inicializar a janela
-    self.window = tk.Tk()
-    self.window.title("Análise do Exame de Papanicolau")
-    width = self.window.winfo_screenwidth()
-    height = self.window.winfo_screenheight()
-    pos_x = ((width - 900) // 2)
-    pos_y = ((height - 900) // 2)
-
-    self.window.geometry(f"900x900+{pos_x}+{pos_y}")
-
-    # Configuracao do Grid
-    self.window.grid_rowconfigure(0, weight=0)
-    self.window.grid_columnconfigure(0, weight=1)
-
-    # Botão para seleção e visualização com zoom de uma imagem.
-    ret_list = botao_enviar = tk.Button(
-        self.window, text="Selecionar Imagem", command=self.selecionar_imagem)
-    botao_enviar.grid(row=2, column=0, pady=10)
-
-    # Entrada de "N" - valor de expansão de seleção do núcleo
-    # A fazer --
-
-    # Botão para marcação de núcleo da imagem selecionada anteriormente.
-    botao_nucleo = tk.Button(self.window, text="Expandir Núcleos", command=self.definir_nucleos)
-    botao_nucleo.grid(row=1, column=0, pady=10)
-
-    # Iniciar o loop da interface
-    self.window.mainloop()
-    
-  
-  def selecionar_imagem(self):
-    self.arquivo = filedialog.askopenfilename(
+def selecionar_imagem():
+    global imagem
+    global imagem_tk
+    global arquivo
+    arquivo = filedialog.askopenfilename(
         filetypes=[("Imagens", "*.png;*.jpg")])
-    self.imagem = Image.open(self.arquivo)
+    imagem = Image.open(arquivo)
+    imagem_tk = ImageTk.PhotoImage(imagem)
 
-    Zoom_Advanced(self.window, path=self.arquivo, imagem=self.imagem)
-  
-  def definir_nucleos(self):
-    
-    
+    nome_arquivo = arquivo.split("/")
+
+    nome_final_arquivo = nome_arquivo[len(nome_arquivo)-1]
+
+    Zoom_Advanced(window, path=arquivo)
+
+def definir_nucleos(arquivo, imagem, imagem_tk):
+    global zoom_instance
     obj = Process(50)
-    obj.markNucImage(self.arquivo)
-    novo_arquivo = os.getcwd() + '/data/tmp_img_preview/363b6b00d925e5c52694b8f7b678c53b.png'
-    print("LEU O ARQUIVO")
-    nova_img = Image.open(novo_arquivo)
-    print("JOGOU IMAGEM PRA VARIAVEL")
-
-    obj = Zoom_Advanced(self.window, path=novo_arquivo, imagem=nova_img)
-    obj.atualizar_imagem(novo_arquivo)
+    # obj.markNucImage(arquivo)
+    imagem = obj.markNucImage(arquivo)
+    zoom_instance.update(imagem)
+    # path_new = os.getcwd() + '/AI/data/tmp_img_preview/363b6b00d925e5c52694b8f7b678c53b.png'
+    # if zoom_instance:
+    #     zoom_instance.update_image(path_new)
     
-
-    
-
   
 
+#############################################
+#                  MAIN                     #
+#############################################
 
+# Inicializar a janela
+window = tk.Tk()
+window.title("Análise do Exame de Papanicolau")
+width = window.winfo_screenwidth()
+height = window.winfo_screenheight()
+pos_x = ((width - 900) // 2)
+pos_y = ((height - 900) // 2)
 
-######################
-#        MAIN        #
-###################### 
-if __name__ == "__main__":
-  UInterface()
-#  obj = Process(50)
-      
+window.geometry(f"900x900+{pos_x}+{pos_y}")
+
+# Configuracao do Grid
+window.grid_rowconfigure(0, weight=0)
+window.grid_columnconfigure(0, weight=1)
+
+# Botão para seleção e visualização com zoom de uma imagem.
+botao_enviar = tk.Button(
+    window, text="Selecionar Imagem", command=selecionar_imagem)
+botao_enviar.grid(row=2, column=0, pady=10)
+
+# Entrada de "N" - valor de expansão de seleção do núcleo
+# A fazer --
+
+# Botão para marcação de núcleo da imagem selecionada anteriormente.
+botao_nucleo = tk.Button(window, text="Expandir Núcleos", command=lambda:definir_nucleos(arquivo, imagem, imagem_tk))
+botao_nucleo.grid(row=1, column=0, pady=10)
+
+# Iniciar o loop da interface
+window.mainloop()
