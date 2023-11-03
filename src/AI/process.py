@@ -20,15 +20,11 @@ class Process():
           os.remove(caminho_arquivo)
         
   def markNucImage(self, path_image):
-    
-    print(os.getcwd())
-    
     df = pd.read_csv(os.getcwd() + "/AI/data/classifications.csv")
     
     # Determinando valor 100 caso nao for passado o valor de N
     if not (isinstance(self.value_expand, int)):
       self.value_expand = 100
-      
     
     # Fazendo caminho de onde vai ser salvo as imagens analisadas
     path_preview = os.getcwd() + '/AI/data/tmp_img_preview/'
@@ -83,11 +79,4 @@ class Process():
           cv2.imwrite(f'{path_preview}{nome_img_selecionada}', img_marcada)
           
           # Limpar a variavel cv2
-          cv2.destroyAllWindows()        
-######################
-#   MAIN PROVISORIO  #
-###################### 
-# if __name__ == "__main__":
- 
-#  obj = Process(50)
-      
+          cv2.destroyAllWindows()

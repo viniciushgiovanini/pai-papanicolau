@@ -1,3 +1,4 @@
+import os
 from tkinter import *
 import tkinter as tk
 from tkinter import ttk
@@ -188,9 +189,23 @@ class UInterface(Frame):
         menubar = Menu(self.parent)
         self.parent.config(menu=menubar)
 
+        # Botão de Escolha de Imagem.
         fileMenu = Menu(menubar)
         fileMenu.add_command(label="Selecionar Imagem", command=lambda: self.selecionar_imagem(self.parent))
         menubar.add_cascade(label="Arquivo", menu=fileMenu)
+
+        # Botão de Expandir Nucleos.
+        menubar.add_command(label="Expandir Núcleos", command=lambda: self.expandir_nucleos(self.parent))
+
+    # Botão para expandir os núcleos da imagem que foi selecionada.
+    def expandir_nucleos(self, mainframe):
+        obj = Process(50)
+        obj.markNucImage(self.arquivo)
+        print(os.getcwd)
+        novo_arquivo = os.getcwd() + '/AI/data/tmp_img_preview/00b1e59ebc3e7be500ef7548207d44e2.png'
+        nova_img = Image.open(novo_arquivo)
+        obj = Zoom_Advanced(mainframe, path=novo_arquivo, imagem=nova_img)
+        obj.atualizar_imagem(novo_arquivo)
     
     # Botão para selecionar a imagem para visualização com zoom.
     def selecionar_imagem(self, mainframe):
