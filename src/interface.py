@@ -84,10 +84,8 @@ class Zoom_Advanced(ttk.Frame):
         self.show_image()
 
     # Método para atualizar a imagem no canvas após demarcar os núcleos.
-    def atualizar_imagem(self, path):
-      nova_imagem = PhotoImage(file=path)
-
-      self.canvas.itemconfig(self.image, image=nova_imagem)
+    def atualizar_imagem(self, imagem_nova):
+      self.canvas.itemconfig(self.image, image=imagem_nova)
       self.canvas.update()
     
     def scroll_y(self, *args, **kwargs):
@@ -196,16 +194,6 @@ class UInterface(Frame):
 
         # Botão de Expandir Nucleos.
         menubar.add_command(label="Expandir Núcleos", command=lambda: self.expandir_nucleos(self.parent))
-
-    # Botão para expandir os núcleos da imagem que foi selecionada.
-    def expandir_nucleos(self, mainframe):
-        obj = Process(50)
-        obj.markNucImage(self.arquivo)
-        print(os.getcwd)
-        novo_arquivo = os.getcwd() + '/AI/data/tmp_img_preview/00b1e59ebc3e7be500ef7548207d44e2.png'
-        nova_img = Image.open(novo_arquivo)
-        obj = Zoom_Advanced(mainframe, path=novo_arquivo, imagem=nova_img)
-        obj.atualizar_imagem(novo_arquivo)
     
     # Botão para selecionar a imagem para visualização com zoom.
     def selecionar_imagem(self, mainframe):
@@ -215,13 +203,24 @@ class UInterface(Frame):
 
         Zoom_Advanced(mainframe, path=self.arquivo, imagem=self.imagem)
 
+    # Botão para expandir os núcleos da imagem que foi selecionada.
+    def expandir_nucleos(self, mainframe):
+        obj = Process(50)
+        novo_arquivo, nova_img = obj.markNucImage(self.arquivo)
+        # print(novo_arquivo)
+        # print(nova_img)
+        # print(os.getcwd)
+        novo_arquivo = os.getcwd() + '/AI/data/tmp_img_preview/' + novo_arquivo
+        obj = Zoom_Advanced(mainframe, path=novo_arquivo, imagem=nova_img)
+        obj.atualizar_imagem(nova_img)
+
 ######################
 #        MAIN        #
 ###################### 
 def main():
     # Inicializar a janela
     window = Tk()
-    janela = UInterface(window)
+    UInterface(window)
     width = window.winfo_screenwidth()
     height = window.winfo_screenheight()
     pos_x = ((width - 900) // 2)

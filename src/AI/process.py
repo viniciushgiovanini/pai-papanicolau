@@ -1,18 +1,17 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import sklearn
+from PIL import Image
 import cv2
 import tensorflow as tf
 import os
 import shutil
 
-
 class Process():
   def __init__(self, n):
     self.value_expand = n
 
-    
+  # Limpar os arquivos do diretório de análise.
   def limparDiretorio(self, path):
     for arquivo in os.listdir(path):
       caminho_arquivo = os.path.join(path, arquivo)
@@ -33,10 +32,8 @@ class Process():
     if not os.path.exists(path_preview):
         os.makedirs(path_preview)
     
-        
     # Limpando este caminho inicialmente
     self.limparDiretorio(path_preview)
-    
     
     nome_img_selecionada = path_image.split("/")
     nome_img_selecionada = nome_img_selecionada[(len(nome_img_selecionada)-1)]
@@ -44,9 +41,7 @@ class Process():
     # Copiando a imagem para o diretorio
     shutil.copy(path_image, path_preview + nome_img_selecionada)
     
-        
     if (os.path.isfile(os.getcwd() + f'/AI/data/dataset/{nome_img_selecionada}')):
-      
 
       for each in df.iterrows():
         
@@ -57,8 +52,7 @@ class Process():
         img_id = each[1]['cell_id']
         
         if(nome_img == nome_img_selecionada):
-          
-        
+
           path_imagem_dataset_original = f'{path_preview}{nome_img_selecionada}'
 
           # Onde ele vai ler cada imagem;
@@ -80,3 +74,7 @@ class Process():
           
           # Limpar a variavel cv2
           cv2.destroyAllWindows()
+    
+    img_toPIL = Image.fromarray(img_marcada)
+
+    return nome_img_selecionada, img_toPIL
