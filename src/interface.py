@@ -44,7 +44,6 @@ class Zoom_Advanced(ttk.Frame):
                                 xscrollcommand=hbar.set, yscrollcommand=vbar.set)
         self.canvas.grid(row=4, column=0, sticky='nswe')
         # self.canvas.update()  # wait till canvas is created
-        print(path)
         vbar.configure(command=self.scroll_y)  # bind scrollbars to the canvas
         hbar.configure(command=self.scroll_x)
         # Make the canvas expandable
@@ -206,12 +205,8 @@ class UInterface(Frame):
     # Botão para expandir os núcleos da imagem que foi selecionada.
     def expandir_nucleos(self, mainframe):
         obj = Process(50)
-        novo_arquivo, nova_img = obj.markNucImage(self.arquivo)
-        # print(novo_arquivo)
-        # print(nova_img)
-        # print(os.getcwd)
-        novo_arquivo = os.getcwd() + '/AI/data/tmp_img_preview/' + novo_arquivo
-        obj = Zoom_Advanced(mainframe, path=novo_arquivo, imagem=nova_img)
+        nova_img = obj.markNucImage(self.arquivo)
+        obj = Zoom_Advanced(mainframe, self.arquivo, imagem=nova_img)
         obj.atualizar_imagem(nova_img)
 
 ######################
