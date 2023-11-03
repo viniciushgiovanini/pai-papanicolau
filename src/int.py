@@ -1,8 +1,12 @@
-from tkinter import *
+import os
+import sys
+import tkinter as tk
+from tkinter import filedialog
+import random
 import tkinter as tk
 from tkinter import ttk
-from tkinter import filedialog
 from PIL import Image, ImageTk
+from tkinter import PhotoImage
 from AI.process import Process
 
 #############################################
@@ -82,10 +86,10 @@ class Zoom_Advanced(ttk.Frame):
             #     x0, y0, x1, y1, fill=color, activefill='black')
         self.show_image()
 
-    # Método para atualizar a imagem no canvas após demarcar os núcleos.
     def atualizar_imagem(self, path):
       nova_imagem = PhotoImage(file=path)
 
+      # Use itemconfig para atualizar a imagem da galinha para a do porco
       self.canvas.itemconfig(self.image, image=nova_imagem)
       self.canvas.update()
     
@@ -173,48 +177,82 @@ class Zoom_Advanced(ttk.Frame):
             self.canvas.imagetk = imagetk
 
 
-class UInterface(Frame):
-    def __init__(self, parent):
-        Frame.__init__(self, parent)   
+class UInterface:
 
-        self.parent = parent
-        self.imagem = None
-        self.arquivo = None
-        self.initUI()
+  def __init__(self):
 
-    def initUI(self):
-        self.parent.title("Análise do Exame de Papanicolau")
+    #############################################
+    #                  MAIN                     #
+    #############################################
 
-        menubar = Menu(self.parent)
-        self.parent.config(menu=menubar)
-
-        fileMenu = Menu(menubar)
-        fileMenu.add_command(label="Selecionar Imagem", command=lambda: self.selecionar_imagem(self.parent))
-        menubar.add_cascade(label="Arquivo", menu=fileMenu)
+    # variaveis globais da classe
     
-    # Botão para selecionar a imagem para visualização com zoom.
-    def selecionar_imagem(self, mainframe):
-        self.arquivo = filedialog.askopenfilename(
-        filetypes=[("Imagens", "*.png;*.jpg")])
-        self.imagem = Image.open(self.arquivo)
+    self.imagem = None
+    self.arquivo = None
+    
+    # Inicializar a janela
+    self.window = tk.Tk()
+    self.window.title("Análise do Exame de Papanicolau")
+    width = self.window.winfo_screenwidth()
+    height = self.window.winfo_screenheight()
+    pos_x = ((width - 900) // 2)
+    pos_y = ((height - 900) // 2)
 
-        Zoom_Advanced(mainframe, path=self.arquivo, imagem=self.imagem)
+    self.window.geometry(f"900x900+{pos_x}+{pos_y}")
+
+    # Configuracao do Grid
+    self.window.grid_rowconfigure(0, weight=0)
+    self.window.grid_columnconfigure(0, weight=1)
+
+    # Botão para seleção e visualização com zoom de uma imagem.
+    ret_list = botao_enviar = tk.Button(
+        self.window, text="Selecionar Imagem", command=self.selecionar_imagem)
+    botao_enviar.grid(row=2, column=0, pady=10)
+
+    # Entrada de "N" - valor de expansão de seleção do núcleo
+    # A fazer --
+
+    # Botão para marcação de núcleo da imagem selecionada anteriormente.
+    botao_nucleo = tk.Button(self.window, text="Expandir Núcleos", command=self.definir_nucleos)
+    botao_nucleo.grid(row=1, column=0, pady=10)
+
+    # Iniciar o loop da interface
+    self.window.mainloop()
+    
+  
+  def selecionar_imagem(self):
+    self.arquivo = filedialog.askopenfilename(
+        filetypes=[("Imagens", "*.png;*.jpg")])
+    self.imagem = Image.open(self.arquivo)
+
+    Zoom_Advanced(self.window, path=self.arquivo, imagem=self.imagem)
+  
+  def definir_nucleos(self):
+    
+    
+    obj = Process(50)
+    obj.markNucImage(self.arquivo)
+    print(os.getcwd)
+    print("AAAAAAAAAAAAAAAA")
+    novo_arquivo = os.getcwd() + '/AI/data/tmp_img_preview/363b6b00d925e5c52694b8f7b678c53b.png'
+    print("LEU O ARQUIVO")
+    nova_img = Image.open(novo_arquivo)
+    print("JOGOU IMAGEM PRA VARIAVEL")
+
+    obj = Zoom_Advanced(self.window, path=novo_arquivo, imagem=nova_img)
+    obj.atualizar_imagem(novo_arquivo)
+    
+
+    
+
+  
+
+
 
 ######################
 #        MAIN        #
 ###################### 
-def main():
-    # Inicializar a janela
-    window = Tk()
-    janela = UInterface(window)
-    width = window.winfo_screenwidth()
-    height = window.winfo_screenheight()
-    pos_x = ((width - 900) // 2)
-    pos_y = ((height - 900) // 2)
-    
-    window.geometry(f"900x900+{pos_x}+{pos_y}")
-
-    window.mainloop()
-
-if __name__ == '__main__':
-    main()
+if __name__ == "__main__":
+  UInterface()
+#  obj = Process(50)
+      
