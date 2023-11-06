@@ -45,3 +45,42 @@ class Process():
     img_toPIL = Image.fromarray(img_marcada)
 
     return img_toPIL
+  
+  
+  def cutNucImage(self,path_image):
+    if not (isinstance(self.value_expand, int)):
+         self.value_expand = 100
+
+    nome_img_selecionada = path_image.split("/")
+    nome_img_selecionada = nome_img_selecionada[(len(nome_img_selecionada)-1)]
+
+    df = pd.read_csv(os.getcwd() + "/AI/data/classifications.csv")
+    df = df[df['image_filename'] == nome_img_selecionada]
+
+    # Leitura da imagem com padrão RGB para preservar cores para conversão para PIL.
+    img = cv2.cvtColor(cv2.imread(path_image), cv2.COLOR_BGR2RGB)
+
+    img_cut_list = []
+
+    for each in df.iterrows():
+      
+      posi_x = each[1]['nucleus_x']
+      posi_y = each[1]['nucleus_y']  
+      
+      x1 = posi_x - self.value_expand
+      y1 = posi_y - self.value_expand
+      x2 = posi_x + self.value_expand
+      y2 = posi_y + self.value_expand
+      
+      # Recortando a imagem;
+      img_recortada = img[y1:y2,x1:x2]
+        
+      
+      if(len(img_recortada)!= 0):  
+        img_cut_list.append(img_recortada.copy())
+      
+      # Limpar a variavel cv2
+      cv2.destroyAllWindows() 
+    return img_cut_list
+  
+
