@@ -3,7 +3,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from PIL import Image
 import cv2
-import tensorflow as tf
 import os
 import shutil
 

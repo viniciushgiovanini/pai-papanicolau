@@ -5,7 +5,6 @@ from PIL import Image
 import cv2
 import tensorflow as tf
 import os
-import shutil
 from process import Process
 
 class Segmentation():
