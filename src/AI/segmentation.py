@@ -111,10 +111,10 @@ class Segmentation():
     return img_segmentation_dict
   
   
-  def segmentacaoHistograma(self, path_img):
+  def segmentacaoEqualizacao(self, path_img):
     
     '''
-      Função que faz o pré-processamento e pós usando filtro gausiano, histograma, filtro de realce e mascara invertida
+      Função que faz o pré-processamento e pós usando filtro gausiano, equalizacao do histograma, filtro de realce e mascara invertida
       
       Parâmetros:
         path_img (String): Path da imagem a ser segmentada.

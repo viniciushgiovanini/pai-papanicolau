@@ -1,10 +1,9 @@
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 from PIL import Image
 import cv2
 import os
-import shutil
+import math
 
 class Process():
   def __init__(self, n):
@@ -84,4 +83,55 @@ class Process():
       cv2.destroyAllWindows() 
     return img_cut_dict
   
+  
+  def calcular_distancia(self, x1, y1, x2, y2):
+    distancia = abs(round(math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2),2))
+    return distancia
+  
+  def distanciaCentros(self, dict_img):
+    
+    img_dist_dict = {}
+    
+    for key, image in dict_img.items():
+      
+      # Converte a img orignal segmentada em tons de cinza
+      gray_original_dois = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+      
+      # Encontra o contorno da img com tons de cinza
+      contours, _ = cv2.findContours(gray_original_dois, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+      # Verifica se tem contornos na imagem
+      if len(contours) > 0:
+
+          contour = contours[0]
+          
+          # Calcula o momentos do contorno (area)          
+          M = cv2.moments(contour)
+          
+          # Calcula as coordenadas do centro do contorno
+          
+          # M10 --> Soma das coordenadas x dos pixels do contorno
+          # M01 --> Soma das coordenadas y dos pixels do contorno
+          # M00 --> divido pela area do contorno
+          
+          cx = int(M["m10"] / M["m00"])
+          cy = int(M["m01"] / M["m00"])
+      
+      # Pega o centro da img do csv
+      altura, largura, _ = image.shape
+      
+      vermelho = (255, 255, 255)  
+      verde = (0, 255, 0)
+      
+      # Pintando centro da imagem segmentada
+      image[cy, cx] = vermelho 
+      # Pintando centro a partir do csv
+      image[largura//2, altura//2] = verde  
+      
+      # Calculando a distancia entre os dois pontos
+      ret = self.distanciaCentros(cx, cy, largura//2,altura//2) 
+      # add o valor da distancia em um dicionario com a key sendo o id da celular e o value sendo a distancia euclidiana
+      img_dist_dict[key] = ret
+    
+    return img_dist_dict
 
