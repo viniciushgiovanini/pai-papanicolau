@@ -75,11 +75,11 @@ class Segmentation():
     '''
     
     
-    img_list = self.obj.cutNucImage(path_image=path_img)
+    img_cut_dict = self.obj.cutNucImage(path_image=path_img)
     
-    img_segmentation_list = []
+    img_segmentation_dict = {}
     
-    for image in img_list:
+    for key, image in img_cut_dict.items():
     
       altura, largura, _ = image.shape
       
@@ -106,9 +106,9 @@ class Segmentation():
       result_image = cv2.bitwise_and(image, image, mask=mask)
       
       img_convert_toPIL = Image.fromarray(result_image)
-      img_segmentation_list.append(img_convert_toPIL.copy())
+      img_segmentation_dict[key] = img_convert_toPIL.copy()
     
-    return img_segmentation_list
+    return img_segmentation_dict
   
   
   def segmentacaoHistograma(self, path_img):
@@ -123,11 +123,11 @@ class Segmentation():
         img_segmentada_list (list de PILLOW): Lista de nucleos img segmentados
     '''
     
-    img_cut_list = self.obj.cutNucImage(path_image=path_img)
+    img_cut_dict = self.obj.cutNucImage(path_image=path_img)
     
-    img_segmentada_list = []
+    img_segmentada_dict = {}
     
-    for image in img_cut_list:
+    for key, image in img_cut_dict.items():
     
       img_tratada = cv2.GaussianBlur(image, (7,7), 7)
 
@@ -166,15 +166,16 @@ class Segmentation():
       # Aplique a máscara na outra imagem colorida
       result_image = cv2.bitwise_and(image, image, mask=dark_mask)
       img_convert_toPIL = Image.fromarray(result_image)
-      img_segmentada_list.append(img_convert_toPIL.copy())
-    return img_segmentada_list
+      img_segmentada_dict[key] = img_convert_toPIL.copy()
+    return img_segmentada_dict
   
 
 # if __name__ == '__main__':
 #   obj = Segmentation(70)
-#   ret = obj.segmentacaoHistograma('./data/dataset/363b6b00d925e5c52694b8f7b678c53b.png')
+#   ret = obj.segmentacaoRegiao('D:\AREA_DE_TRABALHO\Faculdade_6_Periodo\pai\pai-papanicolau\src\AI\data\dataset/363b6b00d925e5c52694b8f7b678c53b.png')
 
 #   print(len(ret))
   
-#   for each in ret:
+#   for key,each in ret.items():
+#     print(f"ID {key}, imagem {str(each)}")
 #     each.show()

@@ -59,12 +59,14 @@ class Process():
     # Leitura da imagem com padrão RGB para preservar cores para conversão para PIL.
     img = cv2.cvtColor(cv2.imread(path_image), cv2.COLOR_BGR2RGB)
 
-    img_cut_list = []
+    img_cut_dict = {}
 
     for each in df.iterrows():
       
       posi_x = each[1]['nucleus_x']
       posi_y = each[1]['nucleus_y']  
+      cell_id = each[1]["cell_id"]
+      
       
       x1 = posi_x - self.value_expand
       y1 = posi_y - self.value_expand
@@ -75,11 +77,11 @@ class Process():
       img_recortada = img[y1:y2,x1:x2]
         
       
-      if(len(img_recortada)!= 0):  
-        img_cut_list.append(img_recortada.copy())
+      if(len(img_recortada)!= 0): 
+        img_cut_dict[cell_id] = img_recortada.copy()
       
       # Limpar a variavel cv2
       cv2.destroyAllWindows() 
-    return img_cut_list
+    return img_cut_dict
   
 
