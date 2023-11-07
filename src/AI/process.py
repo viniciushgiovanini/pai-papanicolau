@@ -47,9 +47,6 @@ class Process():
   
   
   def cutNucImage(self,path_image):
-    if not (isinstance(self.value_expand, int)):
-         self.value_expand = 100
-
     nome_img_selecionada = path_image.split("/")
     nome_img_selecionada = nome_img_selecionada[(len(nome_img_selecionada)-1)]
 
@@ -83,5 +80,3 @@ class Process():
       # Limpar a variavel cv2
       cv2.destroyAllWindows() 
     return img_cut_dict
-  
-

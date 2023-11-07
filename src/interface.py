@@ -5,6 +5,7 @@ from tkinter import ttk
 from tkinter import filedialog
 from PIL import Image, ImageTk
 from AI.process import Process
+from AI.segmentation import Segmentation
 
 #############################################
 #                 Metodos                   #
@@ -193,6 +194,26 @@ class UInterface(Frame):
 
         # Botão de Expandir Nucleos.
         menubar.add_command(label="Expandir Núcleos", command=lambda: self.expandir_nucleos(self.parent))
+        segmentarMenu = Menu(menubar)
+        segmentarMenu.add_command(label="Segmentação Por Região")
+        segmentarMenu.add_command(label="Segmentação Por ")
+        menubar.add_cascade(label="Segmentação", menu=segmentarMenu)
+
+        # Adicionar um campo de entrada de texto
+        self.entry = Entry(self.parent)
+        self.entry.grid(row=3, column=0, padx=380, pady=10)
+        
+        
+    
+    def viewSegmentadas(self, mainframe, dict_img_view,):
+        
+        # adicionando imagens segmentadas na view
+        row=0
+        for key, img in dict_img_view.items():
+            label = tk.Label(mainframe, image=img)
+            
+        
+        
     
     # Botão para selecionar a imagem para visualização com zoom.
     def selecionar_imagem(self, mainframe):
@@ -204,7 +225,9 @@ class UInterface(Frame):
 
     # Botão para expandir os núcleos da imagem que foi selecionada.
     def expandir_nucleos(self, mainframe):
-        obj = Process(50)
+        entry_value = self.entry.get()
+        valuexpand = int(entry_value) if entry_value else 100
+        obj = Process(valuexpand)
         nova_img = obj.markNucImage(self.arquivo)
         obj = Zoom_Advanced(mainframe, self.arquivo, imagem=nova_img)
         obj.atualizar_imagem(nova_img)

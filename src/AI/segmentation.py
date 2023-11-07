@@ -5,7 +5,7 @@ from PIL import Image
 import cv2
 import tensorflow as tf
 import os
-from process import Process
+from AI.process import Process
 
 class Segmentation():
   '''
@@ -15,6 +15,8 @@ class Segmentation():
   
   def __init__(self, value_expand):
     self.obj = Process(value_expand)
+  
+  
   
   def crescimentoRegiao(self, image, seed, threshold):
     '''
