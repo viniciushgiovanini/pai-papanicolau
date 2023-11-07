@@ -78,14 +78,13 @@ class Segmentation():
     
     
     img_cut_dict = self.obj.cutNucImage(path_image=path_img)
-    
+  
     img_segmentation_dict = {}
     
     for key, image in img_cut_dict.items():
     
       altura, largura, _ = image.shape
       
-
       img_tratada = cv2.GaussianBlur(image, (5,5), 5)
 
       x = largura//2
@@ -109,14 +108,15 @@ class Segmentation():
       
       img_convert_toPIL = Image.fromarray(result_image)
       img_segmentation_dict[key] = img_convert_toPIL.copy()
-    
+     
+     
     return img_segmentation_dict
   
   
-  def segmentacaoHistograma(self, path_img):
+  def segmentacaoEqualizacao(self, path_img):
     
     '''
-      Função que faz o pré-processamento e pós usando filtro gausiano, histograma, filtro de realce e mascara invertida
+      Função que faz o pré-processamento e pós usando filtro gausiano, equalizacao do histograma, filtro de realce e mascara invertida
       
       Parâmetros:
         path_img (String): Path da imagem a ser segmentada.

@@ -161,3 +161,5 @@ cython_debug/
 
 # my
 /src/AI/data/
+
+/src/AI/processamento_testes.ipynb

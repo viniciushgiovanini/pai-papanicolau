@@ -180,6 +180,7 @@ class UInterface(Frame):
         self.imagem = None
         self.arquivo = None
         self.initUI()
+        self.dict_crescimento_regiao = None
 
     def initUI(self):
         self.parent.title("Análise do Exame de Papanicolau")
@@ -195,26 +196,40 @@ class UInterface(Frame):
         # Botão de Expandir Nucleos.
         menubar.add_command(label="Expandir Núcleos", command=lambda: self.expandir_nucleos(self.parent))
         segmentarMenu = Menu(menubar)
-        segmentarMenu.add_command(label="Segmentação Por Região")
-        segmentarMenu.add_command(label="Segmentação Por ")
+        segmentarMenu.add_command(label="Segmentação Por Região", command=lambda: self.regioes())
+        segmentarMenu.add_command(label="Segmentação Por Equalização")
         menubar.add_cascade(label="Segmentação", menu=segmentarMenu)
 
         # Adicionar um campo de entrada de texto
         self.entry = Entry(self.parent)
         self.entry.grid(row=3, column=0, padx=380, pady=10)
         
-        
+    def verificarValue(self):
+        entry_value = self.entry.get()
+        return int(entry_value) if entry_value else 100
     
-    def viewSegmentadas(self, mainframe, dict_img_view,):
+    def regioes(self):
+        # obj = Segmentation(self.verificarValue())
+        
+        obj = Process(self.verificarValue())
+        ret = obj.cutNucImage(self.arquivo)
+        
+        # ret_dict_img = obj.segmentacaoRegiao(self.arquivo)
+        # print("Passei da segmentacaoRegiao")
+        # objProcess = Process(self.verificarValue())
+        # ret_distancias = objProcess.distanciaCentros(ret_dict_img)
+        # print("PASSOU AQUI")
+        # print(ret_distancias)
+        
+    def viewSegmentadas(self, mainframe, dict_img_view):
         
         # adicionando imagens segmentadas na view
         row=0
         for key, img in dict_img_view.items():
             label = tk.Label(mainframe, image=img)
+            label.grid(row=row, column=0)
+            row += 1
             
-        
-        
-    
     # Botão para selecionar a imagem para visualização com zoom.
     def selecionar_imagem(self, mainframe):
         self.arquivo = filedialog.askopenfilename(
@@ -225,9 +240,7 @@ class UInterface(Frame):
 
     # Botão para expandir os núcleos da imagem que foi selecionada.
     def expandir_nucleos(self, mainframe):
-        entry_value = self.entry.get()
-        valuexpand = int(entry_value) if entry_value else 100
-        obj = Process(valuexpand)
+        obj = Process(self.verificarValue())
         nova_img = obj.markNucImage(self.arquivo)
         obj = Zoom_Advanced(mainframe, self.arquivo, imagem=nova_img)
         obj.atualizar_imagem(nova_img)
