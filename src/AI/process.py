@@ -130,25 +130,28 @@ class Process():
           # M10 --> Soma das coordenadas x dos pixels do contorno
           # M01 --> Soma das coordenadas y dos pixels do contorno
           # M00 --> divido pela area do contorno
-          
-          cx = int(M["m10"] / M["m00"])
-          cy = int(M["m01"] / M["m00"])
+          todos_zero = all(valor == 0 for valor in M.values())
+          if(not todos_zero):
+            cx = int(M["m10"] / M["m00"])
+            cy = int(M["m01"] / M["m00"])
+                              
       
-      # Pega o centro da img do csv
-      altura, largura, _ = imgCv2.shape
-      
-      vermelho = (255, 255, 255)  
-      verde = (0, 255, 0)
-      
-      # Pintando centro da imagem segmentada
-      imgCv2[cy, cx] = vermelho 
-      # Pintando centro a partir do csv
-      imgCv2[largura//2, altura//2] = verde  
-      
-      # Calculando a distancia entre os dois pontos
-      ret = self.calcular_distancia(cx, cy, largura//2,altura//2) 
-      # add o valor da distancia em um dicionario com a key sendo o id da celular e o value sendo a distancia euclidiana
-      img_dist_dict[key] = ret
-    
+            # Pega o centro da img do csv
+            altura, largura, _ = imgCv2.shape
+            
+            vermelho = (255, 255, 255)  
+            verde = (0, 255, 0)
+            
+            # Pintando centro da imagem segmentada
+            imgCv2[cy, cx] = vermelho 
+            # Pintando centro a partir do csv
+            imgCv2[largura//2, altura//2] = verde  
+            
+            # Calculando a distancia entre os dois pontos
+            ret = self.calcular_distancia(cx, cy, largura//2,altura//2) 
+            # add o valor da distancia em um dicionario com a key sendo o id da celular e o value sendo a distancia euclidiana
+            img_dist_dict[key] = ret
+          else:
+            img_dist_dict[key] = "Erro no calculo"
     return img_dist_dict
 

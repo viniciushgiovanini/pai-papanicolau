@@ -209,17 +209,13 @@ class UInterface(Frame):
         return int(entry_value) if entry_value else 100
     
     def regioes(self):
-        # obj = Segmentation(self.verificarValue())
         
-        obj = Process(self.verificarValue())
-        ret = obj.cutNucImage(self.arquivo)
-        
-        # ret_dict_img = obj.segmentacaoRegiao(self.arquivo)
-        # print("Passei da segmentacaoRegiao")
-        # objProcess = Process(self.verificarValue())
-        # ret_distancias = objProcess.distanciaCentros(ret_dict_img)
-        # print("PASSOU AQUI")
-        # print(ret_distancias)
+        obj = Segmentation(self.verificarValue())
+        ret_dict_img = obj.segmentacaoRegiao(self.arquivo)
+        objProcess = Process(self.verificarValue())
+        ret_distancias = objProcess.distanciaCentros(ret_dict_img)
+        print("PASSOU AQUI")
+        print(ret_distancias)
         
     def viewSegmentadas(self, mainframe, dict_img_view):
         
