@@ -202,7 +202,7 @@ class UInterface(Frame):
 
         # Adicionar um campo de entrada de texto
         self.entry = Entry(self.parent)
-        self.entry.grid(row=3, column=0, padx=380, pady=10)
+        self.entry.grid(row=0, column=0, padx=380, pady=10)
         
     def verificarValue(self):
         entry_value = self.entry.get()
@@ -214,17 +214,33 @@ class UInterface(Frame):
         ret_dict_img = obj.segmentacaoRegiao(self.arquivo)
         objProcess = Process(self.verificarValue())
         ret_distancias = objProcess.distanciaCentros(ret_dict_img)
-        print("PASSOU AQUI")
-        print(ret_distancias)
+        self.viewSegmentadas(ret_dict_img, ret_dict_img)
         
-    def viewSegmentadas(self, mainframe, dict_img_view):
+    def viewSegmentadas(self, dict_img_view, dict_distanci):
         
-        # adicionando imagens segmentadas na view
-        row=0
-        for key, img in dict_img_view.items():
-            label = tk.Label(mainframe, image=img)
-            label.grid(row=row, column=0)
-            row += 1
+      canvas = tk.Canvas(self.parent)
+      canvas.grid(row=6, column=0, sticky="nsew")  
+      frame = tk.Frame(canvas)
+      canvas.create_window((0, 0), window=frame, anchor="nw")
+      scrollbar = tk.Scrollbar(self.parent, command=canvas.yview)
+      frame.grid(row=6, column=0)
+      canvas.config(yscrollcommand=scrollbar.set)
+      
+      row = 0
+      col = 0
+      col_max = 7 
+
+      for _, img in dict_img_view.items():
+          imagem_pil = img.resize((100,100))
+          imagem_tk = ImageTk.PhotoImage(imagem_pil)
+          label = tk.Label(frame, image=imagem_tk)
+          label.imagem = imagem_tk 
+          label.grid(row=row, column=col, padx=5, pady=5)
+
+          col += 1
+          if col == col_max:
+              col = 0
+              row += 1
             
     # Botão para selecionar a imagem para visualização com zoom.
     def selecionar_imagem(self, mainframe):
