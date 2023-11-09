@@ -89,8 +89,8 @@ class Process():
   def convertPILtoCV2(self, img):
    return cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
   
-  # def convertCV2toPIL(self, img):
-  #   return Image.fromarray(img)
+  def convertCV2toPIL(self, img):
+    return Image.fromarray(img)
   
   def distanciaCentros(self, dict_img):
     
@@ -150,8 +150,21 @@ class Process():
             # Calculando a distancia entre os dois pontos
             ret = self.calcular_distancia(cx, cy, largura//2,altura//2) 
             # add o valor da distancia em um dicionario com a key sendo o id da celular e o value sendo a distancia euclidiana
-            img_dist_dict[key] = ret
+            
+            if(ret < 15):
+              tmp = {}
+              tmp["imagem"] = self.convertCV2toPIL(imgCv2)
+              tmp["distancia"] = ret
+              img_dist_dict[key] = tmp.copy()
+            else:
+              tmp["imagem"] = self.convertCV2toPIL(imgCv2)
+              tmp["distancia"] = "Erro no calculo"
+              img_dist_dict[key] = tmp.copy()
+                          
           else:
-            img_dist_dict[key] = "Erro no calculo"
+            tmp["imagem"] = self.convertCV2toPIL(imgCv2)
+            tmp["distancia"] = "Erro no calculo"
+            img_dist_dict[key] = tmp.copy()
+            
     return img_dist_dict
 

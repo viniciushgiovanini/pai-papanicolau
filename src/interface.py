@@ -214,33 +214,43 @@ class UInterface(Frame):
         ret_dict_img = obj.segmentacaoRegiao(self.arquivo)
         objProcess = Process(self.verificarValue())
         ret_distancias = objProcess.distanciaCentros(ret_dict_img)
-        self.viewSegmentadas(ret_dict_img, ret_dict_img)
+        self.viewSegmentadas(ret_dict_img, ret_distancias)
         
-    def viewSegmentadas(self, dict_img_view, dict_distanci):
+    def viewSegmentadas(self, dict_img_view, dict_distancia):
         
-      canvas = tk.Canvas(self.parent)
-      canvas.grid(row=6, column=0, sticky="nsew")  
-      frame = tk.Frame(canvas)
-      canvas.create_window((0, 0), window=frame, anchor="nw")
-      scrollbar = tk.Scrollbar(self.parent, command=canvas.yview)
-      frame.grid(row=6, column=0)
-      canvas.config(yscrollcommand=scrollbar.set)
-      
+      canvas_dois = tk.Canvas(self.parent)
+      canvas_dois.grid(row=6, column=0, sticky="nsew")
+
+      frame_dois = tk.Frame(canvas_dois)
+      canvas_dois.create_window((0, 0), window=frame_dois, anchor="nw")
+
+      scrollbar = tk.Scrollbar(self.parent, command=canvas_dois.yview, width=15, takefocus=True)
+      scrollbar.grid(row=6, column=1, sticky="ns", padx=5)
+
+
+      self.parent.grid_rowconfigure(7, weight=0)
+
       row = 0
       col = 0
-      col_max = 7 
+      col_max = 7
+      
+      for cell_id, img in dict_img_view.items():
+        imagem_pil = img.resize((100, 100))
+        imagem_tk2 = ImageTk.PhotoImage(imagem_pil)
+        label_dois = tk.Label(frame_dois, image=imagem_tk2)
+        label_dois.imagem = imagem_tk2
+        label_dois.grid(row=row+1, column=col, padx=5)
 
-      for _, img in dict_img_view.items():
-          imagem_pil = img.resize((100,100))
-          imagem_tk = ImageTk.PhotoImage(imagem_pil)
-          label = tk.Label(frame, image=imagem_tk)
-          label.imagem = imagem_tk 
-          label.grid(row=row, column=col, padx=5, pady=5)
+        # Cria um Label para exibir o nome da imagem
+        label_nome = tk.Label(frame_dois, text=cell_id)
+        label_nome.grid(row=row, column=col, padx=5)
 
-          col += 1
-          if col == col_max:
-              col = 0
-              row += 1
+        col += 1
+        if col == col_max:
+            col = 0
+            row += 2
+              
+      
             
     # Botão para selecionar a imagem para visualização com zoom.
     def selecionar_imagem(self, mainframe):
