@@ -19,9 +19,9 @@
 
 ## Run Code
 
-- Dentro do diretório AI.
+- Dentro do diretório SRC.
 
-```cd src/AI/```
+```cd src/```
 
 - Instale a virtual environement.
 
