@@ -234,6 +234,9 @@ class UInterface(Frame):
       scrollbar = tk.Scrollbar(self.parent, command=canvas_dois.yview, width=15, takefocus=True)
       scrollbar.grid(row=6, column=1, sticky="ns", padx=5)
 
+      
+      dict_novo = dict_distancia.get(528)
+      print(dict_novo)
 
       self.parent.grid_rowconfigure(7, weight=0)
 

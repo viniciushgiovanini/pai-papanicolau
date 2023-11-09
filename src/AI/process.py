@@ -136,16 +136,20 @@ class Process():
           if(not todos_zero):
             cx = int(M["m10"] / M["m00"])
             cy = int(M["m01"] / M["m00"])
-                              
-      
+            
+            
+            # branco = nosso
+            # verde = professor                            
+
+            
             # Pega o centro da img do csv
             altura, largura, _ = imgCv2.shape
             
-            vermelho = (255, 255, 255)  
+            branco = (255, 255, 255)  
             verde = (0, 255, 0)
             
             # Pintando centro da imagem segmentada
-            imgCv2[cy, cx] = vermelho 
+            imgCv2[cy, cx] = branco 
             # Pintando centro a partir do csv
             imgCv2[largura//2, altura//2] = verde  
             
@@ -154,7 +158,7 @@ class Process():
             # add o valor da distancia em um dicionario com a key sendo o id da celular e o value sendo a distancia euclidiana
             
             
-            if(ret < 15):
+            if(ret < 60):
               tmp["imagem"] = self.convertCV2toPIL(imgCv2)
               tmp["distancia"] = ret
               img_dist_dict[key] = tmp.copy()
