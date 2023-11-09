@@ -120,6 +120,8 @@ class Process():
       # Verifica se tem contornos na imagem
       if len(contours) > 0:
 
+          tmp = {}
+          
           contour = contours[0]
           
           # Calcula o momentos do contorno (area)          
@@ -151,8 +153,8 @@ class Process():
             ret = self.calcular_distancia(cx, cy, largura//2,altura//2) 
             # add o valor da distancia em um dicionario com a key sendo o id da celular e o value sendo a distancia euclidiana
             
+            
             if(ret < 15):
-              tmp = {}
               tmp["imagem"] = self.convertCV2toPIL(imgCv2)
               tmp["distancia"] = ret
               img_dist_dict[key] = tmp.copy()

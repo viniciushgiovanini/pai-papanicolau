@@ -197,7 +197,7 @@ class UInterface(Frame):
         menubar.add_command(label="Expandir Núcleos", command=lambda: self.expandir_nucleos(self.parent))
         segmentarMenu = Menu(menubar)
         segmentarMenu.add_command(label="Segmentação Por Região", command=lambda: self.regioes())
-        segmentarMenu.add_command(label="Segmentação Por Equalização")
+        segmentarMenu.add_command(label="Segmentação Por Equalização", command=lambda: self.equailizacao())
         menubar.add_cascade(label="Segmentação", menu=segmentarMenu)
 
         # Adicionar um campo de entrada de texto
@@ -207,6 +207,13 @@ class UInterface(Frame):
     def verificarValue(self):
         entry_value = self.entry.get()
         return int(entry_value) if entry_value else 100
+    
+    def equailizacao(self):
+      obj = Segmentation(self.verificarValue())
+      ret_dict_img = obj.segmentacaoEqualizacao(self.arquivo)
+      objProcess = Process(self.verificarValue())
+      ret_distancias = objProcess.distanciaCentros(ret_dict_img)
+      self.viewSegmentadas(ret_dict_img, ret_distancias)
     
     def regioes(self):
         
@@ -232,10 +239,10 @@ class UInterface(Frame):
 
       row = 0
       col = 0
-      col_max = 7
+      col_max = 5
       
       for cell_id, img in dict_img_view.items():
-        imagem_pil = img.resize((100, 100))
+        imagem_pil = img.resize((150, 150))
         imagem_tk2 = ImageTk.PhotoImage(imagem_pil)
         label_dois = tk.Label(frame_dois, image=imagem_tk2)
         label_dois.imagem = imagem_tk2
