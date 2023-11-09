@@ -216,7 +216,6 @@ class UInterface(Frame):
       self.viewSegmentadas(ret_dict_img, ret_distancias)
     
     def regioes(self):
-        
         obj = Segmentation(self.verificarValue())
         ret_dict_img = obj.segmentacaoRegiao(self.arquivo)
         objProcess = Process(self.verificarValue())
@@ -224,43 +223,66 @@ class UInterface(Frame):
         self.viewSegmentadas(ret_dict_img, ret_distancias)
         
     def viewSegmentadas(self, dict_img_view, dict_distancia):
+        canvas_dois = tk.Canvas(self.parent)
+        canvas_dois.grid(row=6, column=0, sticky="nsew")
+
+        frame_dois = tk.Frame(canvas_dois)
+        canvas_dois.create_window((0, 0), window=frame_dois, anchor="nw")
+
+        scrollbar = tk.Scrollbar(self.parent, command=canvas_dois.yview, width=15, takefocus=True)
+        scrollbar.grid(row=6, column=1, sticky="ns", padx=5)
+
+        self.parent.grid_rowconfigure(7, weight=0)
+
+        row = 0
+        col = 0
+        col_max = 5
+
+        for cell_id, img in dict_img_view.items():
+            imagem_pil = img.resize((150, 150))
+            imagem_tk2 = ImageTk.PhotoImage(imagem_pil)
+            label_dois = tk.Label(frame_dois, image=imagem_tk2)
+            label_dois.imagem = imagem_tk2
+            label_dois.grid(row=row+1, column=col, padx=5)
+
+            # Cria um Label para exibir o nome da imagem
+            label_nome = tk.Label(frame_dois, text=cell_id)
+            label_nome.grid(row=row, column=col, padx=5)
+
+            # Vincular o clique da imagem à função de clique
+            label_dois.bind("<Button-1>", lambda event, cell_id=cell_id: self.on_image_click(cell_id, dict_distancia))
+
+            col += 1
+            if col == col_max:
+                col = 0
+                row += 2
+
+    # Função para abrir uma nova janela com a imagem clicada
+    def open_image_window(self, img, distancia):
+        image_window = tk.Toplevel()
+        image_window.title("Visualização")
+
+        width = image_window.winfo_screenwidth()
+        height = image_window.winfo_screenheight()
+        pos_x = ((width - 300) // 2)
+        pos_y = ((height - 300) // 2)
+    
+        image_window.geometry(f"300x300+{pos_x}+{pos_y}")
         
-      canvas_dois = tk.Canvas(self.parent)
-      canvas_dois.grid(row=6, column=0, sticky="nsew")
+        img_tk = ImageTk.PhotoImage(img)
+        label = tk.Label(image_window, image=img_tk)
+        label.image = img_tk
+        label.pack()
+        
+        label_nome = tk.Label(image_window, text=f"Distância em px: {distancia}")
+        label_nome.pack()
 
-      frame_dois = tk.Frame(canvas_dois)
-      canvas_dois.create_window((0, 0), window=frame_dois, anchor="nw")
-
-      scrollbar = tk.Scrollbar(self.parent, command=canvas_dois.yview, width=15, takefocus=True)
-      scrollbar.grid(row=6, column=1, sticky="ns", padx=5)
-
-      
-      dict_novo = dict_distancia.get(528)
-      print(dict_novo)
-
-      self.parent.grid_rowconfigure(7, weight=0)
-
-      row = 0
-      col = 0
-      col_max = 5
-      
-      for cell_id, img in dict_img_view.items():
-        imagem_pil = img.resize((150, 150))
-        imagem_tk2 = ImageTk.PhotoImage(imagem_pil)
-        label_dois = tk.Label(frame_dois, image=imagem_tk2)
-        label_dois.imagem = imagem_tk2
-        label_dois.grid(row=row+1, column=col, padx=5)
-
-        # Cria um Label para exibir o nome da imagem
-        label_nome = tk.Label(frame_dois, text=cell_id)
-        label_nome.grid(row=row, column=col, padx=5)
-
-        col += 1
-        if col == col_max:
-            col = 0
-            row += 2
-              
-      
+    # Função para lidar com o clique na imagem
+    def on_image_click(self, cell_id, dict_distancia):
+        cell_info = dict_distancia.get(cell_id)
+        img = cell_info.get("imagem")
+        distancia = cell_info.get("distancia")
+        self.open_image_window(img, distancia)
             
     # Botão para selecionar a imagem para visualização com zoom.
     def selecionar_imagem(self, mainframe):

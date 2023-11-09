@@ -38,7 +38,7 @@ class Process():
       img_marcada = cv2.rectangle(img, (x1, y1), (x2, y2), (0, 255, 0), 2)
       
       # Escrevendo o indice na imagem
-      img_marcada = cv2.putText(img_marcada, str(img_id), (posi_x-10, posi_y-5) , cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 100, 0), 2) 
+      img_marcada = cv2.putText(img_marcada, str(img_id), (posi_x-10, posi_y-50) , cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 100, 0), 2) 
     
     # Converter cv2 para PIL -> a classe de zoom usa demonstração em PIL.
     img_toPIL = Image.fromarray(img_marcada)
@@ -90,7 +90,8 @@ class Process():
    return cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
   
   def convertCV2toPIL(self, img):
-    return Image.fromarray(img)
+    imagem_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    return Image.fromarray(imagem_rgb)
   
   def distanciaCentros(self, dict_img):
     
@@ -157,7 +158,7 @@ class Process():
             ret = self.calcular_distancia(cx, cy, largura//2,altura//2) 
             # add o valor da distancia em um dicionario com a key sendo o id da celular e o value sendo a distancia euclidiana
             
-            
+            # img = cv2.cvtColor(cv2.imread(path_image), cv2.COLOR_BGR2RGB)
             if(ret < 60):
               tmp["imagem"] = self.convertCV2toPIL(imgCv2)
               tmp["distancia"] = ret

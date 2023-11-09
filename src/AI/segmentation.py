@@ -90,7 +90,7 @@ class Segmentation():
       x = largura//2
       y = altura//2
 
-      threshold = 70 
+      threshold = 50 
 
 
       region = self.crescimentoRegiao(img_tratada, (x,y), threshold)
