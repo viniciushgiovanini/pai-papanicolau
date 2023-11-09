@@ -149,8 +149,8 @@ class Segmentation():
       imagem_equalizada = cv2.cvtColor(imagem_hsv_equalizada, cv2.COLOR_HSV2BGR)
 
       # Ajustando a luminosidade (brilho) da imagem equalizada
-      alpha = 9.0  # Fator de brilho 
-      beta = 40  # Valor de contraste 
+      alpha = 9.0  # Fator de brilho
+      beta = 40  # Valor de contraste
       adjusted_image = cv2.convertScaleAbs(imagem_equalizada, alpha=alpha, beta=beta)
       
       gray_original = cv2.cvtColor(adjusted_image, cv2.COLOR_BGR2GRAY)

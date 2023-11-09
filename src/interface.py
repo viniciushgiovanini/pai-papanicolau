@@ -31,7 +31,7 @@ class AutoScrollbar(ttk.Scrollbar):
 class Zoom_Advanced(ttk.Frame):
     ''' Advanced zoom of the image '''
     
-    def __init__(self, mainframe, path, imagem):
+    def __init__(self, mainframe, path, imagem, resize):
 
         ''' Initialize the main Frame '''
         ttk.Frame.__init__(self, master=mainframe)
@@ -63,7 +63,7 @@ class Zoom_Advanced(ttk.Frame):
         # only with Linux, wheel scroll up
         self.canvas.bind('<Button-4>',   self.wheel)
         self.image = Image.open(path)  # open image
-        self.image = imagem.resize((900, 600))
+        self.image = imagem.resize(resize)
         self.width, self.height = self.image.size
         self.imscale = 1.0  # scale for the canvaas image
         self.delta = 1.3  # zoom magnitude
@@ -258,7 +258,7 @@ class UInterface(Frame):
                 row += 2
 
     # Função para abrir uma nova janela com a imagem clicada
-    def open_image_window(self, img, distancia):
+    def open_image_window(self, img, distancia, cell_id):
         image_window = tk.Toplevel()
         image_window.title("Visualização")
 
@@ -269,20 +269,17 @@ class UInterface(Frame):
     
         image_window.geometry(f"300x300+{pos_x}+{pos_y}")
         
-        img_tk = ImageTk.PhotoImage(img)
-        label = tk.Label(image_window, image=img_tk)
-        label.image = img_tk
-        label.pack()
-        
-        label_nome = tk.Label(image_window, text=f"Distância em px: {distancia}")
-        label_nome.pack()
+        obj = Zoom_Advanced(image_window, self.arquivo, imagem=img, resize=(300, 300))
+
+        label_nome = tk.Label(image_window, text=f"Distância da celula com ID: {cell_id} em px: {distancia}")
+        label_nome.grid(row=7, column=0, sticky="ns", padx=5)
 
     # Função para lidar com o clique na imagem
     def on_image_click(self, cell_id, dict_distancia):
         cell_info = dict_distancia.get(cell_id)
         img = cell_info.get("imagem")
         distancia = cell_info.get("distancia")
-        self.open_image_window(img, distancia)
+        self.open_image_window(img, distancia, cell_id)
             
     # Botão para selecionar a imagem para visualização com zoom.
     def selecionar_imagem(self, mainframe):
@@ -290,13 +287,13 @@ class UInterface(Frame):
         filetypes=[("Imagens", "*.png;*.jpg")])
         self.imagem = Image.open(self.arquivo)
 
-        Zoom_Advanced(mainframe, path=self.arquivo, imagem=self.imagem)
+        Zoom_Advanced(mainframe, path=self.arquivo, imagem=self.imagem, resize=(900, 600))
 
     # Botão para expandir os núcleos da imagem que foi selecionada.
     def expandir_nucleos(self, mainframe):
         obj = Process(self.verificarValue())
         nova_img = obj.markNucImage(self.arquivo)
-        obj = Zoom_Advanced(mainframe, self.arquivo, imagem=nova_img)
+        obj = Zoom_Advanced(mainframe, self.arquivo, imagem=nova_img, resize=(900, 600))
         obj.atualizar_imagem(nova_img)
 
 ######################
