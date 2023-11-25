@@ -65,26 +65,14 @@ class Segmentation():
     return matriz_segmentado
   
   
-  def pegarPixelClaroeEscuroRegiao(self, imagem, coordenada_central, tamanho_quadrado):
-    altura, largura = imagem.shape
-    x, y = coordenada_central
+  
+  
+  def pegarPixelClaroeEscuroRegiao(self, imagem):
 
-    # Limitar as coordenadas para garantir que o quadrado esteja dentro da imagem
-    x = max(tamanho_quadrado // 2, min(x, largura - 1 - tamanho_quadrado // 2))
-    y = max(tamanho_quadrado // 2, min(y, altura - 1 - tamanho_quadrado // 2))
-
-    # Definir as coordenadas do quadrado ao redor do ponto central
-    quadrado_x = slice(x - tamanho_quadrado // 2, x + tamanho_quadrado // 2 + 1)
-    quadrado_y = slice(y - tamanho_quadrado // 2, y + tamanho_quadrado // 2 + 1)
+    # Encontrar o valor do pixel mais claro e mais escuro
+    pixel_mais_escuro = np.min(imagem)
+    pixel_mais_claro = np.max(imagem)
     
-    
-    # Extrair o quadrado da imagem
-    quadrado = imagem[quadrado_y, quadrado_x]
-
-    # Encontrar os valores mínimo e máximo no quadrado
-    pixel_mais_escuro = np.min(quadrado)
-    pixel_mais_claro = np.max(quadrado)
-
     return pixel_mais_escuro, pixel_mais_claro
   
   def segmentacaoRegiao(self, path_img):
@@ -117,15 +105,14 @@ class Segmentation():
       cv_image = cv2.cvtColor(img_tratada, cv2.COLOR_BGR2GRAY)
       
                
-      px_escuro, px_claro = self.pegarPixelClaroeEscuroRegiao(cv_image, (x,y), 10)
-      
+      px_escuro, px_claro = self.pegarPixelClaroeEscuroRegiao(cv_image)
       
       # Pega o threshold com a soma do pixel mais escuro com o mais claro e divide por 2, 
       # caso seja mt baixo o valor menor que 40 ele soma os valores
-      threshold = (int(px_claro)+int(px_escuro))//2
+      threshold = (int(px_claro) - int(px_escuro)) / 4
         
-      if(threshold < 40):
-        threshold = (int(px_claro)+int(px_escuro))
+      # if(threshold < 60):
+      #   threshold = (int(px_claro)+int(px_escuro))/2
       
   
      
