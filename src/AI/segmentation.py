@@ -33,7 +33,7 @@ class Segmentation():
     
     
     # Pega a altura e a largura
-    altura, largura, _ = image.shape
+    altura, largura = image.shape
     # Inicia matriz para pegar os px visitados
     matriz_visitados = np.zeros((altura, largura), dtype=np.uint8)
     # Matriz para pegar região segmentada
@@ -49,7 +49,8 @@ class Segmentation():
         # Verifica se o px foi visitado
         if not matriz_visitados[x, y]:
             # Verifica se o px esta dentro do limiar de similiadade com a semente
-            if np.linalg.norm(image[x, y] - image[seed]) < threshold:
+            # if np.linalg.norm(image[x, y] - image[seed]) < threshold:
+            if np.linalg.norm(image[x, y].astype(float) - image[seed].astype(float)) < threshold:
                 # Marca o px como visitado
                 matriz_visitados[x, y] = 1
                 # Adiciona o px na regiao segmentada
@@ -116,14 +117,14 @@ class Segmentation():
       
   
      
-      region = self.crescimentoRegiao(img_tratada, (x,y), threshold)
+      region = self.crescimentoRegiao(cv_image, (x,y), threshold)
       
-      gray_original = cv2.cvtColor(region, cv2.COLOR_BGR2GRAY)
+      # gray_original = cv2.cvtColor(region, cv2.COLOR_BGR2GRAY)
 
 
-      contours, _ = cv2.findContours(gray_original, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+      contours, _ = cv2.findContours(region, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-      mask = np.zeros_like(gray_original)
+      mask = np.zeros_like(region)
 
       cv2.drawContours(mask, contours, -1, 255, thickness=cv2.FILLED)
 
