@@ -163,3 +163,5 @@ cython_debug/
 /src/AI/data/
 
 /src/AI/processamento_testes.ipynb
+
+/src/AI/notebook/processamento_testes.ipynb
