@@ -163,5 +163,6 @@ cython_debug/
 /src/AI/data/
 
 /src/AI/processamento_testes.ipynb
+/src/AI/gen_dataset_segmentado.ipynb
 
 /src/AI/notebook/processamento_testes.ipynb
