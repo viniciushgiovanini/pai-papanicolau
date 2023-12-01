@@ -49,14 +49,14 @@ model.compile(optimizer='rmsprop', loss='binary_crossentropy', metrics=['accurac
 # Exiba um resumo do modelo
 start_time = time.time()
 
-epochs = 60
+epochs = 100
 
 
 checkpoint = ModelCheckpoint('best_model.hdf5', monitor='val_recall', verbose=1, save_best_only=True, mode='max')
 
 resultados = model.fit(
     train_dataset,
-    steps_per_epoch=60,
+    steps_per_epoch=100,
     epochs=epochs,
     validation_data=test_dataset,
     callbacks=[checkpoint]
