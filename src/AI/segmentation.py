@@ -92,9 +92,10 @@ class Segmentation():
     img_cut_dict = self.obj.cutNucImage(path_image=path_img)
   
     img_segmentation_dict = {}
+    img_recortada = {}
     
     for key, image in img_cut_dict.items():
-    
+      
       altura, largura, _ = image.shape
       
       img_tratada = cv2.GaussianBlur(image, (7,7), 7)
@@ -131,10 +132,14 @@ class Segmentation():
       result_image = cv2.bitwise_and(image, image, mask=mask)
       
       img_convert_toPIL = Image.fromarray(result_image)
+      
+      img_convert_img_normal_toPIL = Image.fromarray(image)
+      
       img_segmentation_dict[key] = img_convert_toPIL.copy()
+      img_recortada[key] = img_convert_img_normal_toPIL.copy()
      
      
-    return img_segmentation_dict
+    return img_segmentation_dict, img_recortada
   
   
   def segmentacaoEqualizacao(self, path_img):
@@ -206,7 +211,10 @@ class Segmentation():
       # Aplique a máscara na outra imagem colorida
       result_image = cv2.bitwise_and(image, image, mask=dark_mask)
       img_convert_toPIL = Image.fromarray(result_image)
-      img_segmentada_dict[key] = img_convert_toPIL.copy()
+      
+      img_segmentada_dict[key] = {"segmentada": img_convert_toPIL.copy(), "recortada": image.copy()}
+      
+      # img_segmentada_dict[key] = img_convert_toPIL.copy()
     return img_segmentada_dict
   
 
