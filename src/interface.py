@@ -6,6 +6,7 @@ from tkinter import filedialog
 from PIL import Image, ImageTk
 from AI.process import Process
 from AI.segmentation import Segmentation
+from AI.train_validation import TrainValidation
 
 #############################################
 #                 Metodos                   #
@@ -223,6 +224,14 @@ class UInterface(Frame):
         objProcess = Process(self.verificarValue())
         ret_distancias = objProcess.distanciaCentros(ret_dict_img)
         self.viewSegmentadas(ret_dict_img, ret_distancias, dict_recortada)
+
+    # Função para exibir resultados Resnet Bin
+    def viewResnetBin(self, img_recortada_value, image_window):
+        result, value = TrainValidation.classificar(img_recortada_value, True)
+
+        # Criar widget para exibir os resultados na janela
+        label_resultado = tk.Label(image_window, text=f"Resultado Resnet Bin: {result}, Valor: {value}")
+        label_resultado.grid(row=8, column=0, sticky="ns", padx=5)
         
     def viewSegmentadas(self, dict_img_view, dict_distancia, dict_recortada):
         canvas_dois = tk.Canvas(self.parent)
@@ -267,14 +276,23 @@ class UInterface(Frame):
 
         width = image_window.winfo_screenwidth()
         height = image_window.winfo_screenheight()
-        pos_x = ((width - 300) // 2)
-        pos_y = ((height - 300) // 2)
+        pos_x = ((width - 600) // 2)
+        pos_y = ((height - 600) // 2)
+        
+        image_window.geometry(f"600x600+{pos_x}+{pos_y}")
 
-        img_recortada_value.show()
+        menubar = Menu(image_window)
+        image_window.config(menu=menubar)
+
+        # Botão de Classificações.
+        classificationMenu = Menu(menubar)
+        classificationMenu.add_command(label="Mahalanobis Binário", command=lambda: self.regioes())
+        classificationMenu.add_command(label="Mahalanobis Categórico", command=lambda: self.equailizacao())
+        classificationMenu.add_command(label="CNN EfficientNet Binária", command=lambda: self.equailizacao())
+        classificationMenu.add_command(label="CNN Resnet Binária", command=lambda: self.viewResnetBin(img_recortada_value, image_window))
+        menubar.add_cascade(label="Classificação", menu=classificationMenu)
         
-        image_window.geometry(f"300x300+{pos_x}+{pos_y}")
-        
-        obj = Zoom_Advanced(image_window, self.arquivo, imagem=img, resize=(300, 300))
+        obj = Zoom_Advanced(image_window, self.arquivo, imagem=img, resize=(600, 600))
 
         label_nome = tk.Label(image_window, text=f"Distância da celula com ID: {cell_id} em px: {distancia}")
         label_nome.grid(row=7, column=0, sticky="ns", padx=5)
