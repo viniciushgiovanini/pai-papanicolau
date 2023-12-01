@@ -227,12 +227,22 @@ class UInterface(Frame):
 
     # Função para exibir resultados Resnet Bin
     def viewResnetBin(self, img_recortada_value, image_window):
-        result, value = TrainValidation.classificar(img_recortada_value, True)
+        result, value = TrainValidation.classificarResnet(img_recortada_value, True)
 
         # Criar widget para exibir os resultados na janela
         label_resultado = tk.Label(image_window, text=f"Resultado Resnet Bin: {result}, Valor: {value}")
         label_resultado.grid(row=8, column=0, sticky="ns", padx=5)
-        
+
+    def viewMahanalobisBin(self, img_recortada_value, image_window):
+        train_validation_instance = TrainValidation()
+        objProcess = Process(self.verificarValue())
+        imgInCV2 = objProcess.convertPILtoCV2(img_recortada_value)
+        predicao = train_validation_instance.classificarMahalanobis(imgInCV2)
+
+        # Criar widget para exibir os resultados na janela
+        label_resultado = tk.Label(image_window, text=f"Predicao Mahanalobis Binário: {predicao}")
+        label_resultado.grid(row=8, column=0, sticky="ns", padx=5)
+
     def viewSegmentadas(self, dict_img_view, dict_distancia, dict_recortada):
         canvas_dois = tk.Canvas(self.parent)
         canvas_dois.grid(row=6, column=0, sticky="nsew")
@@ -286,9 +296,9 @@ class UInterface(Frame):
 
         # Botão de Classificações.
         classificationMenu = Menu(menubar)
-        classificationMenu.add_command(label="Mahalanobis Binário", command=lambda: self.regioes())
-        classificationMenu.add_command(label="Mahalanobis Categórico", command=lambda: self.equailizacao())
-        classificationMenu.add_command(label="CNN EfficientNet Binária", command=lambda: self.equailizacao())
+        classificationMenu.add_command(label="Mahalanobis Binário", command=lambda: self.viewMahanalobisBin(img_recortada_value, image_window))
+        # classificationMenu.add_command(label="Mahalanobis Categórico", command=lambda: self.equailizacao())
+        # classificationMenu.add_command(label="CNN EfficientNet Binária", command=lambda: self.equailizacao())
         classificationMenu.add_command(label="CNN Resnet Binária", command=lambda: self.viewResnetBin(img_recortada_value, image_window))
         menubar.add_cascade(label="Classificação", menu=classificationMenu)
         
