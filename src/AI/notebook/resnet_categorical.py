@@ -9,6 +9,7 @@ from tensorflow.keras.callbacks import ModelCheckpoint
 import time
 import numpy as np
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+import seaborn as sns
 
 tf.config.list_physical_devices()
 train_datagen = ImageDataGenerator(rescale=1./255)
@@ -52,7 +53,7 @@ model.compile(optimizer=optimizer, loss='categorical_crossentropy', metrics=['ac
 # Exiba um resumo do modelo
 start_time = time.time()
 
-epochs = 10
+epochs = 200
 
 checkpoint = ModelCheckpoint('best_model.hdf5', monitor='val_recall', verbose=1, save_best_only=True, mode='max')
 
@@ -64,16 +65,6 @@ resultados = model.fit(
     callbacks=[checkpoint]
 )
 
-
-# resultados = model.fit_generator(
-#   train_dataset,
-#   steps_per_epoch=60,
-#   epochs=epochs,
-#   validation_data=test_dataset,
-#   callbacks=[checkpoint])
-
-
-
 end_time = time.time()
 
 model.summary()
@@ -84,31 +75,26 @@ print("#######################################")
 print("Tempo de treinamento:", tempo_de_treinamento, "minutos")
 print("#######################################")
 
-# Faça previsões no conjunto de teste
+
+########################################
+#       PLOTAR MATRIX DE CONFUSAO      #
+########################################
+
 y_true = test_dataset.classes
 y_pred = model.predict(test_dataset)
 y_pred_classes = np.argmax(y_pred, axis=1)
 
-# Crie a matriz de confusão
 conf_mat = confusion_matrix(y_true, y_pred_classes)
 
-# Exiba a matriz de confusão usando matshow
-plt.matshow(conf_mat, cmap='Blues')
-
-# Adicione rótulos e título
-plt.colorbar()
-plt.xlabel('Predições')
-plt.ylabel('Rótulos Verdadeiros')
-plt.title('Matriz de Confusão')
-
-# Adicione os rótulos das classes ao longo do eixo x e y
-class_labels = list(test_dataset.class_indices.keys())
-plt.xticks(np.arange(len(class_labels)), class_labels, rotation=45)
-plt.yticks(np.arange(len(class_labels)), class_labels)
-
-# Salve a matriz de confusão em um arquivo
-plt.savefig(f"graph/resnet/categorical/matrizdeconfusao_{epochs}.png", format='png', bbox_inches='tight')
-plt.close()  # Fecha a figura para liberar memória
+plt.figure(figsize=(25, 10))
+sns.heatmap(conf_mat, annot=True, fmt='d', cmap='Blues', cbar=False,
+            xticklabels=train_dataset.class_indices.keys(),
+            yticklabels=train_dataset.class_indices.keys())
+plt.title('Confusion Matrix')
+plt.xlabel('Predicted')
+plt.ylabel('True')
+plt.savefig(f"graph/resnet/categorical/matrizdeconfusao_{epochs}.png")
+plt.close()
 
 
 plt.plot(resultados.history["loss"])
