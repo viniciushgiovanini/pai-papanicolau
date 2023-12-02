@@ -179,10 +179,11 @@ class Zoom_Advanced(ttk.Frame):
 
 class UInterface(Frame):
     def __init__(self, parent):
-        Frame.__init__(self, parent)   
+        Frame.__init__(self, parent)
 
-
-        self.modelBinario = load_model(os.getcwd() + "/AI/notebook/model/binario/modelo_treinado_teste_100_sem_dropout.h5")        
+        self.label_resultado = None
+        self.modelBinario = load_model(os.getcwd() + "/AI/notebook/model/binario/modelo_treinado_teste_100_sem_dropout.h5")
+        self.modelCategorical = load_model(os.getcwd() + "/AI/notebook/model/categorical/modelo_treinado_teste_categorical_200.h5")
         self.parent = parent
         self.imagem = None
         self.arquivo = None
@@ -235,19 +236,53 @@ class UInterface(Frame):
     def viewResnetBin(self, img_recortada_value, image_window):
         result, value = TrainValidation.classificarResnet(img_recortada_value, True, self.modelBinario)
 
-        # Criar widget para exibir os resultados na janela
-        label_resultado = tk.Label(image_window, text=f"Resultado Resnet Bin: {result}, Valor: {value}")
-        label_resultado.grid(row=8, column=0, sticky="ns", padx=5)
+        # Criar ou atualizar widget para exibir os resultados na janela
+        if self.label_resultado is None:
+            self.label_resultado = tk.Label(image_window, text=f"Resultado Resnet Bin: {result}, Valor: {value}")
+            self.label_resultado.grid(row=8, column=0, sticky="ns", padx=5)
+        else:
+            self.label_resultado.config(text=f"Resultado Resnet Bin: {result}, Valor: {value}")
+            self.label_resultado = None
+
+
+    def viewResnetCategorical(self, img_recortada_value, image_window):
+        result, value = TrainValidation.classificarResnet(img_recortada_value, False, self.modelCategorical)
+
+        # Criar ou atualizar widget para exibir os resultados na janela
+        if self.label_resultado is None:
+            self.label_resultado = tk.Label(image_window, text=f"Resultado Resnet Categorical: {result}, Valor: {value}")
+            self.label_resultado.grid(row=8, column=0, sticky="ns", padx=5)
+        else:
+            self.label_resultado.config(text=f"Resultado Resnet Categorical: {result}, Valor: {value}")
+            self.label_resultado = None
 
     def viewMahanalobisBin(self, img_recortada_value, image_window):
         train_validation_instance = TrainValidation()
         objProcess = Process(self.verificarValue())
         imgInCV2 = objProcess.convertPILtoCV2(img_recortada_value)
-        predicao = train_validation_instance.classificarMahalanobis(imgInCV2)
+        predicao = train_validation_instance.classificarMahalanobis(imgInCV2, "./AI/csv_pt2_binario.csv")
 
-        # Criar widget para exibir os resultados na janela
-        label_resultado = tk.Label(image_window, text=f"Predicao Mahanalobis Binário: {predicao}")
-        label_resultado.grid(row=8, column=0, sticky="ns", padx=5)
+        # Criar ou atualizar widget para exibir os resultados na janela
+        if self.label_resultado is None:
+            self.label_resultado = tk.Label(image_window, text=f"Predicao Mahanalobis Binário: {predicao}")
+            self.label_resultado.grid(row=8, column=0, sticky="ns", padx=5)
+        else:
+            self.label_resultado.config(text=f"Predicao Mahanalobis Binário: {predicao}")
+            self.label_resultado = None
+
+    def viewMahanalobisCategorical(self, img_recortada_value, image_window):
+        train_validation_instance = TrainValidation()
+        objProcess = Process(self.verificarValue())
+        imgInCV2 = objProcess.convertPILtoCV2(img_recortada_value)
+        predicao = train_validation_instance.classificarMahalanobis(imgInCV2, "./AI/csv_pt2_categorical.csv")
+
+        # Criar ou atualizar widget para exibir os resultados na janela
+        if self.label_resultado is None:
+            self.label_resultado = tk.Label(image_window, text=f"Predicao Mahanalobis Binário: {predicao}")
+            self.label_resultado.grid(row=8, column=0, sticky="ns", padx=5)
+        else:
+            self.label_resultado.config(text=f"Predicao Mahanalobis Binário: {predicao}")
+            self.label_resultado = None
 
     def viewSegmentadas(self, dict_img_view, dict_distancia, dict_recortada):
         canvas_dois = tk.Canvas(self.parent)
@@ -303,9 +338,9 @@ class UInterface(Frame):
         # Botão de Classificações.
         classificationMenu = Menu(menubar)
         classificationMenu.add_command(label="Mahalanobis Binário", command=lambda: self.viewMahanalobisBin(img_recortada_value, image_window))
-        # classificationMenu.add_command(label="Mahalanobis Categórico", command=lambda: self.equailizacao())
-        # classificationMenu.add_command(label="CNN EfficientNet Binária", command=lambda: self.equailizacao())
+        classificationMenu.add_command(label="Mahalanobis Categórico", command=lambda: self.viewMahanalobisCategorical(img_recortada_value, image_window))
         classificationMenu.add_command(label="CNN Resnet Binária", command=lambda: self.viewResnetBin(img_recortada_value, image_window))
+        classificationMenu.add_command(label="CNN Resnet Categórico", command=lambda: self.viewResnetCategorical(img_recortada_value, image_window))
         menubar.add_cascade(label="Classificação", menu=classificationMenu)
         
         obj = Zoom_Advanced(image_window, self.arquivo, imagem=img, resize=(600, 600))
