@@ -125,12 +125,12 @@ class TrainValidation:
             distancias[classe] = mahalanobis(amostra, estatisticas['media'], np.linalg.inv(estatisticas['covariancia']))
         return min(distancias, key=distancias.get)
     
-    def classificarMahalanobis(self, img):
+    def classificarMahalanobis(self, img, csvPath):
         area, _ = self.calculaAreaPerimetroImagem(img)
         compacidade = self.calcularCompacidade(img)
         excentricidade = self.calcularExcentricidades(img)
 
         amostra = np.array([area, compacidade, excentricidade])
-        predicao = self.classificar_mahalanobis(amostra, self.gerarEstatisticas(os.getcwd() + "/AI/csv_pt2_binario.csv"))
+        predicao = self.classificar_mahalanobis(amostra, self.gerarEstatisticas(os.getcwd() + csvPath))
         
         return predicao
