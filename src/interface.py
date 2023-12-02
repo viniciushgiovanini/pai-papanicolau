@@ -181,7 +181,7 @@ class UInterface(Frame):
     def __init__(self, parent):
         Frame.__init__(self, parent)   
 
-
+        self.label_resultado = None
         self.modelBinario = load_model(os.getcwd() + "/AI/notebook/model/binario/modelo_treinado_teste_100_sem_dropout.h5")        
         self.parent = parent
         self.imagem = None
@@ -235,9 +235,14 @@ class UInterface(Frame):
     def viewResnetBin(self, img_recortada_value, image_window):
         result, value = TrainValidation.classificarResnet(img_recortada_value, True, self.modelBinario)
 
-        # Criar widget para exibir os resultados na janela
-        label_resultado = tk.Label(image_window, text=f"Resultado Resnet Bin: {result}, Valor: {value}")
-        label_resultado.grid(row=8, column=0, sticky="ns", padx=5)
+        # Criar ou atualizar widget para exibir os resultados na janela
+        if self.label_resultado is None:
+            self.label_resultado = tk.Label(image_window, text=f"Resultado Resnet Bin: {result}, Valor: {value}")
+            self.label_resultado.grid(row=8, column=0, sticky="ns", padx=5)
+        else:
+            self.label_resultado.config(text=f"Resultado Resnet Bin: {result}, Valor: {value}")
+
+        self.label_resultado = None
 
     def viewMahanalobisBin(self, img_recortada_value, image_window):
         train_validation_instance = TrainValidation()
@@ -245,9 +250,14 @@ class UInterface(Frame):
         imgInCV2 = objProcess.convertPILtoCV2(img_recortada_value)
         predicao = train_validation_instance.classificarMahalanobis(imgInCV2)
 
-        # Criar widget para exibir os resultados na janela
-        label_resultado = tk.Label(image_window, text=f"Predicao Mahanalobis Binário: {predicao}")
-        label_resultado.grid(row=8, column=0, sticky="ns", padx=5)
+        # Criar ou atualizar widget para exibir os resultados na janela
+        if self.label_resultado is None:
+            self.label_resultado = tk.Label(image_window, text=f"Predicao Mahanalobis Binário: {predicao}")
+            self.label_resultado.grid(row=8, column=0, sticky="ns", padx=5)
+        else:
+            self.label_resultado.config(text=f"Predicao Mahanalobis Binário: {predicao}")
+        
+        self.label_resultado = None
 
     def viewSegmentadas(self, dict_img_view, dict_distancia, dict_recortada):
         canvas_dois = tk.Canvas(self.parent)
