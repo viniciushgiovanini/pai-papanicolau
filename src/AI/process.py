@@ -5,6 +5,9 @@ import cv2
 import os
 import math
 import math
+import warnings
+
+warnings.filterwarnings("ignore")
 
 class Process():
   def __init__(self, n):

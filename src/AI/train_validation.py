@@ -12,6 +12,9 @@ import os
 from scipy.spatial.distance import mahalanobis
 import pandas as pd
 from sklearn.model_selection import train_test_split, cross_val_predict
+import warnings
+
+warnings.filterwarnings("ignore")
 
 class TrainValidation:
     # Resnet Binário.

@@ -6,6 +6,9 @@ import cv2
 import tensorflow as tf
 import os
 from AI.process import Process
+import warnings
+
+warnings.filterwarnings("ignore")
 
 class Segmentation():
   '''

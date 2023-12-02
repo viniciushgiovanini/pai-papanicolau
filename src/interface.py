@@ -8,6 +8,9 @@ from AI.process import Process
 from AI.segmentation import Segmentation
 from AI.train_validation import TrainValidation
 from keras.models import load_model
+import warnings
+
+warnings.filterwarnings("ignore")
 
 #############################################
 #                 Metodos                   #
