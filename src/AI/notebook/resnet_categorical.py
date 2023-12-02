@@ -7,6 +7,8 @@ from tensorflow.keras.optimizers import Adam, RMSprop
 from tensorflow.keras.applications import ResNet50
 from tensorflow.keras.callbacks import ModelCheckpoint
 import time
+import numpy as np
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 
 tf.config.list_physical_devices()
 train_datagen = ImageDataGenerator(rescale=1./255)
@@ -45,12 +47,12 @@ model.add(Dense(len(train_dataset.class_indices), activation='softmax'))
 
 
 optimizer = RMSprop(learning_rate=0.001)
-model.compile(optimizer=optimizer, loss='categorical_crossentropy', metrics=['accuracy'])
+model.compile(optimizer=optimizer, loss='categorical_crossentropy', metrics=['accuracy' ,tf.keras.metrics.AUC(num_thresholds=3),  tf.keras.metrics.Recall(), tf.keras.metrics.Precision()])
 
 # Exiba um resumo do modelo
 start_time = time.time()
 
-epochs = 40
+epochs = 10
 
 checkpoint = ModelCheckpoint('best_model.hdf5', monitor='val_recall', verbose=1, save_best_only=True, mode='max')
 
@@ -70,6 +72,8 @@ resultados = model.fit(
 #   validation_data=test_dataset,
 #   callbacks=[checkpoint])
 
+
+
 end_time = time.time()
 
 model.summary()
@@ -79,6 +83,33 @@ tempo_de_treinamento = (end_time - start_time) / 60
 print("#######################################")
 print("Tempo de treinamento:", tempo_de_treinamento, "minutos")
 print("#######################################")
+
+# Faça previsões no conjunto de teste
+y_true = test_dataset.classes
+y_pred = model.predict(test_dataset)
+y_pred_classes = np.argmax(y_pred, axis=1)
+
+# Crie a matriz de confusão
+conf_mat = confusion_matrix(y_true, y_pred_classes)
+
+# Exiba a matriz de confusão usando matshow
+plt.matshow(conf_mat, cmap='Blues')
+
+# Adicione rótulos e título
+plt.colorbar()
+plt.xlabel('Predições')
+plt.ylabel('Rótulos Verdadeiros')
+plt.title('Matriz de Confusão')
+
+# Adicione os rótulos das classes ao longo do eixo x e y
+class_labels = list(test_dataset.class_indices.keys())
+plt.xticks(np.arange(len(class_labels)), class_labels, rotation=45)
+plt.yticks(np.arange(len(class_labels)), class_labels)
+
+# Salve a matriz de confusão em um arquivo
+plt.savefig(f"graph/resnet/categorical/matrizdeconfusao_{epochs}.png", format='png', bbox_inches='tight')
+plt.close()  # Fecha a figura para liberar memória
+
 
 plt.plot(resultados.history["loss"])
 plt.plot(resultados.history["val_loss"])
@@ -99,5 +130,34 @@ plt.xlabel("Épocas de treinamento")
 plt.legend(["Acuracia treino", "Acuracia teste"])
 plt.savefig("graph/resnet/categorical/acuracia_categorical.png")
 plt.clf()
+
+plt.plot(resultados.history["auc"])
+plt.plot(resultados.history["val_auc"])
+plt.title("Histórico de Treinamento")
+plt.ylabel("Função de Custo")
+plt.xlabel("Épocas de treinamento")
+plt.legend(["AUC treino", "AUC teste"])
+plt.savefig("graph/resnet/categorical/auc_categorical.png")
+plt.clf()
+
+plt.plot(resultados.history["recall"])
+plt.plot(resultados.history["val_recall"])
+plt.title("Histórico de Treinamento")
+plt.ylabel("Função de Custo")
+plt.xlabel("Épocas de treinamento")
+plt.legend(["Recall treino", "Recall teste"])
+plt.savefig("graph/resnet/categorical/recall_categorical.png")
+plt.clf()
+
+plt.plot(resultados.history["precision"])
+plt.plot(resultados.history["val_precision"])
+plt.title("Histórico de Treinamento")
+plt.ylabel("Função de Custo")
+plt.xlabel("Épocas de treinamento")
+plt.legend(["Precisao treino", "Precisao teste"])
+plt.savefig("graph/resnet/categorical/precisao_categorical.png")
+plt.clf()
+
+
 
 model.save(f"model/modelo_treinado_teste_categorical_{str(epochs)}.h5")
