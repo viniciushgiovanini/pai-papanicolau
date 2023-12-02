@@ -28,6 +28,7 @@ class Process():
       posi_x = each[1]['nucleus_x']
       posi_y = each[1]['nucleus_y']  
       img_id = each[1]['cell_id']
+      type_cel = each[1]['bethesda_system']
       
       x1 = posi_x - self.value_expand
       y1 = posi_y - self.value_expand
@@ -39,6 +40,11 @@ class Process():
       
       # Escrevendo o indice na imagem
       img_marcada = cv2.putText(img_marcada, str(img_id), (posi_x-10, posi_y-50) , cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 100, 0), 2) 
+      
+      if("Negative" in type_cel):
+        type_cel = "Negative"
+      
+      img_marcada = cv2.putText(img_marcada, str(type_cel), (posi_x-10, posi_y-80) , cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 100, 0), 2) 
     
     # Converter cv2 para PIL -> a classe de zoom usa demonstração em PIL.
     img_toPIL = Image.fromarray(img_marcada)

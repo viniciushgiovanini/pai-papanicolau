@@ -4,7 +4,8 @@ matplotlib==3.8.0
 scikit-learn==1.3.1
 opencv-python
 pillow
-
+scipy
+tqdm
 # Para treinamento em cpu
 tensorflow==2.14.0
 

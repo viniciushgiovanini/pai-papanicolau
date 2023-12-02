@@ -6,6 +6,8 @@ from tkinter import filedialog
 from PIL import Image, ImageTk
 from AI.process import Process
 from AI.segmentation import Segmentation
+from AI.train_validation import TrainValidation
+from keras.models import load_model
 
 #############################################
 #                 Metodos                   #
@@ -176,6 +178,8 @@ class UInterface(Frame):
     def __init__(self, parent):
         Frame.__init__(self, parent)   
 
+
+        self.modelBinario = load_model(os.getcwd() + "/AI/notebook/model/binario/modelo_treinado_teste_100_sem_dropout.h5")        
         self.parent = parent
         self.imagem = None
         self.arquivo = None
@@ -210,19 +214,39 @@ class UInterface(Frame):
     
     def equailizacao(self):
       obj = Segmentation(self.verificarValue())
-      ret_dict_img = obj.segmentacaoEqualizacao(self.arquivo)
+      ret_dict_img, dict_recortada = obj.segmentacaoEqualizacao(self.arquivo)
+      
       objProcess = Process(self.verificarValue())
       ret_distancias = objProcess.distanciaCentros(ret_dict_img)
-      self.viewSegmentadas(ret_dict_img, ret_distancias)
+      self.viewSegmentadas(ret_dict_img, ret_distancias, dict_recortada)
     
     def regioes(self):
         obj = Segmentation(self.verificarValue())
-        ret_dict_img = obj.segmentacaoRegiao(self.arquivo)
+        ret_dict_img, dict_recortada = obj.segmentacaoRegiao(self.arquivo)
+        
         objProcess = Process(self.verificarValue())
         ret_distancias = objProcess.distanciaCentros(ret_dict_img)
-        self.viewSegmentadas(ret_dict_img, ret_distancias)
-        
-    def viewSegmentadas(self, dict_img_view, dict_distancia):
+        self.viewSegmentadas(ret_dict_img, ret_distancias, dict_recortada)
+
+    # Função para exibir resultados Resnet Bin
+    def viewResnetBin(self, img_recortada_value, image_window):
+        result, value = TrainValidation.classificarResnet(img_recortada_value, True, self.modelBinario)
+
+        # Criar widget para exibir os resultados na janela
+        label_resultado = tk.Label(image_window, text=f"Resultado Resnet Bin: {result}, Valor: {value}")
+        label_resultado.grid(row=8, column=0, sticky="ns", padx=5)
+
+    def viewMahanalobisBin(self, img_recortada_value, image_window):
+        train_validation_instance = TrainValidation()
+        objProcess = Process(self.verificarValue())
+        imgInCV2 = objProcess.convertPILtoCV2(img_recortada_value)
+        predicao = train_validation_instance.classificarMahalanobis(imgInCV2)
+
+        # Criar widget para exibir os resultados na janela
+        label_resultado = tk.Label(image_window, text=f"Predicao Mahanalobis Binário: {predicao}")
+        label_resultado.grid(row=8, column=0, sticky="ns", padx=5)
+
+    def viewSegmentadas(self, dict_img_view, dict_distancia, dict_recortada):
         canvas_dois = tk.Canvas(self.parent)
         canvas_dois.grid(row=6, column=0, sticky="nsew")
 
@@ -249,8 +273,9 @@ class UInterface(Frame):
             label_nome = tk.Label(frame_dois, text=cell_id)
             label_nome.grid(row=row, column=col, padx=5)
 
+                       
             # Vincular o clique da imagem à função de clique
-            label_dois.bind("<Button-1>", lambda event, cell_id=cell_id: self.on_image_click(cell_id, dict_distancia))
+            label_dois.bind("<Button-1>", lambda event, cell_id=cell_id: self.on_image_click(cell_id, dict_distancia, dict_recortada))
 
             col += 1
             if col == col_max:
@@ -258,28 +283,42 @@ class UInterface(Frame):
                 row += 2
 
     # Função para abrir uma nova janela com a imagem clicada
-    def open_image_window(self, img, distancia, cell_id):
+    def open_image_window(self, img, distancia, cell_id, img_recortada_value):
         image_window = tk.Toplevel()
         image_window.title("Visualização")
 
         width = image_window.winfo_screenwidth()
         height = image_window.winfo_screenheight()
-        pos_x = ((width - 300) // 2)
-        pos_y = ((height - 300) // 2)
-    
-        image_window.geometry(f"300x300+{pos_x}+{pos_y}")
+        pos_x = ((width - 600) // 2)
+        pos_y = ((height - 600) // 2)
         
-        obj = Zoom_Advanced(image_window, self.arquivo, imagem=img, resize=(300, 300))
+        image_window.geometry(f"600x600+{pos_x}+{pos_y}")
+
+        menubar = Menu(image_window)
+        image_window.config(menu=menubar)
+
+        # Botão de Classificações.
+        classificationMenu = Menu(menubar)
+        classificationMenu.add_command(label="Mahalanobis Binário", command=lambda: self.viewMahanalobisBin(img_recortada_value, image_window))
+        # classificationMenu.add_command(label="Mahalanobis Categórico", command=lambda: self.equailizacao())
+        # classificationMenu.add_command(label="CNN EfficientNet Binária", command=lambda: self.equailizacao())
+        classificationMenu.add_command(label="CNN Resnet Binária", command=lambda: self.viewResnetBin(img_recortada_value, image_window))
+        menubar.add_cascade(label="Classificação", menu=classificationMenu)
+        
+        obj = Zoom_Advanced(image_window, self.arquivo, imagem=img, resize=(600, 600))
 
         label_nome = tk.Label(image_window, text=f"Distância da celula com ID: {cell_id} em px: {distancia}")
         label_nome.grid(row=7, column=0, sticky="ns", padx=5)
 
     # Função para lidar com o clique na imagem
-    def on_image_click(self, cell_id, dict_distancia):
+    def on_image_click(self, cell_id, dict_distancia, dict_recortada):
         cell_info = dict_distancia.get(cell_id)
         img = cell_info.get("imagem")
         distancia = cell_info.get("distancia")
-        self.open_image_window(img, distancia, cell_id)
+        
+        img_recortada_value = dict_recortada.get(cell_id)
+        
+        self.open_image_window(img, distancia, cell_id, img_recortada_value)
             
     # Botão para selecionar a imagem para visualização com zoom.
     def selecionar_imagem(self, mainframe):

@@ -163,3 +163,15 @@ cython_debug/
 /src/AI/data/
 
 /src/AI/processamento_testes.ipynb
+/src/AI/gen_dataset_segmentado.ipynb
+
+/src/AI/notebook/processamento_testes.ipynb
+
+/src/AI/notebook/model/binario/modelo_treinado_teste_2.h5
+/src/AI/notebook/model/binario/modelo_treinado_teste_6.h5
+/src/AI/notebook/model/binario/modelo_treinado_teste_10.h5
+/src/AI/notebook/model/binario/modelo_treinado_teste_29.h5
+/src/AI/notebook/model/binario/modelo_treinado_teste_30.h5
+/src/AI/notebook/model/binario/modelo_treinado_teste_31.h5
+/src/AI/notebook/model/binario/modelo_treinado_teste_60.h5
+/src/AI/notebook/model/categorical/*

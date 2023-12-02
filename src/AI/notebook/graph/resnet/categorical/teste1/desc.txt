@@ -1,0 +1,23 @@
+base_model = ResNet50(weights='imagenet', include_top=False, input_shape=(100, 100, 3))
+
+# Freeze the base model layers
+for layer in base_model.layers:
+    layer.trainable = False
+
+# Create a new model by adding layers on top of the base model
+
+model = Sequential()
+
+model.add(base_model)
+model.add(GlobalAveragePooling2D())
+model.add(Dense(128, activation='relu'))
+# model.add(Dropout(0.3))
+model.add(Dense(len(train_dataset.class_indices), activation='softmax'))
+
+
+optimizer = RMSprop(learning_rate=0.001)
+model.compile(optimizer="adam", loss='categorical_crossentropy', metrics=['accuracy'])
+
+
+acuracia 64%
+sem dropout

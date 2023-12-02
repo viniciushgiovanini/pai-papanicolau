@@ -33,7 +33,7 @@ class Segmentation():
     
     
     # Pega a altura e a largura
-    altura, largura, _ = image.shape
+    altura, largura = image.shape
     # Inicia matriz para pegar os px visitados
     matriz_visitados = np.zeros((altura, largura), dtype=np.uint8)
     # Matriz para pegar região segmentada
@@ -49,7 +49,8 @@ class Segmentation():
         # Verifica se o px foi visitado
         if not matriz_visitados[x, y]:
             # Verifica se o px esta dentro do limiar de similiadade com a semente
-            if np.linalg.norm(image[x, y] - image[seed]) < threshold:
+            # if np.linalg.norm(image[x, y] - image[seed]) < threshold:
+            if np.linalg.norm(image[x, y].astype(float) - image[seed].astype(float)) < threshold:
                 # Marca o px como visitado
                 matriz_visitados[x, y] = 1
                 # Adiciona o px na regiao segmentada
@@ -65,26 +66,14 @@ class Segmentation():
     return matriz_segmentado
   
   
-  def pegarPixelClaroeEscuroRegiao(self, imagem, coordenada_central, tamanho_quadrado):
-    altura, largura = imagem.shape
-    x, y = coordenada_central
+  
+  
+  def pegarPixelClaroeEscuroRegiao(self, imagem):
 
-    # Limitar as coordenadas para garantir que o quadrado esteja dentro da imagem
-    x = max(tamanho_quadrado // 2, min(x, largura - 1 - tamanho_quadrado // 2))
-    y = max(tamanho_quadrado // 2, min(y, altura - 1 - tamanho_quadrado // 2))
-
-    # Definir as coordenadas do quadrado ao redor do ponto central
-    quadrado_x = slice(x - tamanho_quadrado // 2, x + tamanho_quadrado // 2 + 1)
-    quadrado_y = slice(y - tamanho_quadrado // 2, y + tamanho_quadrado // 2 + 1)
+    # Encontrar o valor do pixel mais claro e mais escuro
+    pixel_mais_escuro = np.min(imagem)
+    pixel_mais_claro = np.max(imagem)
     
-    
-    # Extrair o quadrado da imagem
-    quadrado = imagem[quadrado_y, quadrado_x]
-
-    # Encontrar os valores mínimo e máximo no quadrado
-    pixel_mais_escuro = np.min(quadrado)
-    pixel_mais_claro = np.max(quadrado)
-
     return pixel_mais_escuro, pixel_mais_claro
   
   def segmentacaoRegiao(self, path_img):
@@ -103,9 +92,10 @@ class Segmentation():
     img_cut_dict = self.obj.cutNucImage(path_image=path_img)
   
     img_segmentation_dict = {}
+    img_recortada = {}
     
     for key, image in img_cut_dict.items():
-    
+      
       altura, largura, _ = image.shape
       
       img_tratada = cv2.GaussianBlur(image, (7,7), 7)
@@ -117,36 +107,32 @@ class Segmentation():
       cv_image = cv2.cvtColor(img_tratada, cv2.COLOR_BGR2GRAY)
       
                
-      px_escuro, px_claro = self.pegarPixelClaroeEscuroRegiao(cv_image, (x,y), 10)
-      
+      px_escuro, px_claro = self.pegarPixelClaroeEscuroRegiao(cv_image)
       
       # Pega o threshold com a soma do pixel mais escuro com o mais claro e divide por 2, 
       # caso seja mt baixo o valor menor que 40 ele soma os valores
-      threshold = (int(px_claro)+int(px_escuro))//2
+      threshold = (int(px_claro) - int(px_escuro)) / 4
         
-      if(threshold < 40):
-        threshold = (int(px_claro)+int(px_escuro))
-      
-  
      
-      region = self.crescimentoRegiao(img_tratada, (x,y), threshold)
+      region = self.crescimentoRegiao(cv_image, (x,y), threshold)
       
-      gray_original = cv2.cvtColor(region, cv2.COLOR_BGR2GRAY)
+      contours, _ = cv2.findContours(region, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-
-      contours, _ = cv2.findContours(gray_original, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
-      mask = np.zeros_like(gray_original)
+      mask = np.zeros_like(region)
 
       cv2.drawContours(mask, contours, -1, 255, thickness=cv2.FILLED)
 
       result_image = cv2.bitwise_and(image, image, mask=mask)
       
       img_convert_toPIL = Image.fromarray(result_image)
+      
+      img_convert_img_normal_toPIL = Image.fromarray(image)
+      
       img_segmentation_dict[key] = img_convert_toPIL.copy()
+      img_recortada[key] = img_convert_img_normal_toPIL.copy()
      
      
-    return img_segmentation_dict
+    return img_segmentation_dict, img_recortada
   
   
   def segmentacaoEqualizacao(self, path_img):
@@ -164,6 +150,8 @@ class Segmentation():
     img_cut_dict = self.obj.cutNucImage(path_image=path_img)
     
     img_segmentada_dict = {}
+    
+    img_recortada_dict = {}
     
     for key, image in img_cut_dict.items():
     
@@ -199,13 +187,12 @@ class Segmentation():
       
       
       # Defina um valor de limiar para separar a região escura
-      px_escuro, px_claro = self.pegarPixelClaroeEscuroRegiao(gray_original, (x,y) , 10)
+      px_escuro, px_claro = self.pegarPixelClaroeEscuroRegiao(gray_original)
       
       threshold_value = (int(px_claro)+int(px_escuro))
       
       
       while(threshold_value >= 200):
-        print(threshold_value)
         threshold_value -= 100
       
       # Crie uma máscara com base no limiar
@@ -218,8 +205,12 @@ class Segmentation():
       # Aplique a máscara na outra imagem colorida
       result_image = cv2.bitwise_and(image, image, mask=dark_mask)
       img_convert_toPIL = Image.fromarray(result_image)
+      
+      img_convert_toPIL_recortada = Image.fromarray(image)
+      
       img_segmentada_dict[key] = img_convert_toPIL.copy()
-    return img_segmentada_dict
+      img_recortada_dict[key] = img_convert_toPIL_recortada.copy()
+    return img_segmentada_dict, img_recortada_dict
   
 
 # if __name__ == '__main__':
