@@ -113,16 +113,9 @@ class Segmentation():
       # caso seja mt baixo o valor menor que 40 ele soma os valores
       threshold = (int(px_claro) - int(px_escuro)) / 4
         
-      # if(threshold < 60):
-      #   threshold = (int(px_claro)+int(px_escuro))/2
-      
-  
      
       region = self.crescimentoRegiao(cv_image, (x,y), threshold)
       
-      # gray_original = cv2.cvtColor(region, cv2.COLOR_BGR2GRAY)
-
-
       contours, _ = cv2.findContours(region, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
       mask = np.zeros_like(region)
@@ -158,6 +151,8 @@ class Segmentation():
     
     img_segmentada_dict = {}
     
+    img_recortada_dict = {}
+    
     for key, image in img_cut_dict.items():
     
       img_tratada = cv2.GaussianBlur(image, (7,7), 7)
@@ -192,13 +187,12 @@ class Segmentation():
       
       
       # Defina um valor de limiar para separar a região escura
-      px_escuro, px_claro = self.pegarPixelClaroeEscuroRegiao(gray_original, (x,y) , 10)
+      px_escuro, px_claro = self.pegarPixelClaroeEscuroRegiao(gray_original)
       
       threshold_value = (int(px_claro)+int(px_escuro))
       
       
       while(threshold_value >= 200):
-        print(threshold_value)
         threshold_value -= 100
       
       # Crie uma máscara com base no limiar
@@ -212,10 +206,11 @@ class Segmentation():
       result_image = cv2.bitwise_and(image, image, mask=dark_mask)
       img_convert_toPIL = Image.fromarray(result_image)
       
-      img_segmentada_dict[key] = {"segmentada": img_convert_toPIL.copy(), "recortada": image.copy()}
+      img_convert_toPIL_recortada = Image.fromarray(image)
       
-      # img_segmentada_dict[key] = img_convert_toPIL.copy()
-    return img_segmentada_dict
+      img_segmentada_dict[key] = img_convert_toPIL.copy()
+      img_recortada_dict[key] = img_convert_toPIL_recortada.copy()
+    return img_segmentada_dict, img_recortada_dict
   
 
 # if __name__ == '__main__':

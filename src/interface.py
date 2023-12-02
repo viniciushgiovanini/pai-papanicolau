@@ -7,6 +7,7 @@ from PIL import Image, ImageTk
 from AI.process import Process
 from AI.segmentation import Segmentation
 from AI.train_validation import TrainValidation
+from keras.models import load_model
 
 #############################################
 #                 Metodos                   #
@@ -177,6 +178,8 @@ class UInterface(Frame):
     def __init__(self, parent):
         Frame.__init__(self, parent)   
 
+
+        self.modelBinario = load_model(os.getcwd() + "/AI/notebook/model/binario/modelo_treinado_teste_100_sem_dropout.h5")        
         self.parent = parent
         self.imagem = None
         self.arquivo = None
@@ -227,7 +230,7 @@ class UInterface(Frame):
 
     # Função para exibir resultados Resnet Bin
     def viewResnetBin(self, img_recortada_value, image_window):
-        result, value = TrainValidation.classificarResnet(img_recortada_value, True)
+        result, value = TrainValidation.classificarResnet(img_recortada_value, True, self.modelBinario)
 
         # Criar widget para exibir os resultados na janela
         label_resultado = tk.Label(image_window, text=f"Resultado Resnet Bin: {result}, Valor: {value}")

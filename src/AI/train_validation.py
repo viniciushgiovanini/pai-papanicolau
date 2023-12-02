@@ -15,8 +15,8 @@ from sklearn.model_selection import train_test_split, cross_val_predict
 
 class TrainValidation:
     # Resnet Binário.
-    def classificarResnet(img, isBinario):
-        model = load_model(os.getcwd() + "/AI/notebook/model/modelo_treinado_teste_100.h5")
+    def classificarResnet(img, isBinario, model):
+        # model = load_model(os.getcwd() + "/AI/notebook/model/binario/modelo_treinado_teste_100.h5")
         
         img = img.resize((100,100))
         # plt.imshow(img)
@@ -26,7 +26,7 @@ class TrainValidation:
         x = np.expand_dims(x, axis=0)
         images = np.vstack([x])
         value = model.predict(images)
-        print(value[0])
+        # print(value[0])
         value = value[0].tolist()
         
         value_list_int = list(map(int, value))         
@@ -131,7 +131,3 @@ class TrainValidation:
         predicao = self.classificar_mahalanobis(amostra, self.gerarEstatisticas(os.getcwd() + "/AI/csv_pt2_binario.csv"))
         
         return predicao
-
-train_validation_instance = TrainValidation()
-img = cv2.imread(os.getcwd() + "/AI/data/dataset_recortado_cnn_binaria/ASC-H/10.png")
-train_validation_instance.classificarMahalanobis(img)
