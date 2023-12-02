@@ -174,4 +174,7 @@ cython_debug/
 /src/AI/notebook/model/binario/modelo_treinado_teste_30.h5
 /src/AI/notebook/model/binario/modelo_treinado_teste_31.h5
 /src/AI/notebook/model/binario/modelo_treinado_teste_60.h5
-/src/AI/notebook/model/categorical/*
+/src/AI/notebook/model/categorical/modelo_treinado_teste_categorical_20.h5
+/src/AI/notebook/model/categorical/modelo_treinado_teste_categorical_40.h5
+/src/AI/notebook/model/categorical/modelo_treinado_teste_categorical_100.h5
+/src/AI/notebook/model/categorical/best_model.hdf5
