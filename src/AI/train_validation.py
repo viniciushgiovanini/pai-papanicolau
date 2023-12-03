@@ -38,7 +38,7 @@ class TrainValidation:
         valu_posi = value_list_int.index(maxValue)
         
         if(isBinario):
-            if value[0] > 0.85:
+            if value[0] < 0.5:
                 return "Negativo", value[0]
             else:
                 return "Positivo", value[0]
@@ -69,11 +69,11 @@ class TrainValidation:
         
         return area_branca, round(total_perimetro, 2)
     
-    # perimetro^2 / 4 PI area
+    # 4 PI area / perimetro^2
     def calcularCompacidade(self, img_cv2):
         area, perimetro = self.calculaAreaPerimetroImagem(img_cv2)
         
-        compacidade = (perimetro**2) / (area * (4 * math.pi)) 
+        compacidade = (area * (4 * math.pi)) / (perimetro**2)
         
         return round(compacidade, 4)
     

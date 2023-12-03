@@ -264,10 +264,10 @@ class UInterface(Frame):
 
         # Criar ou atualizar widget para exibir os resultados na janela
         if self.label_resultado is None:
-            self.label_resultado = tk.Label(image_window, text=f"Predicao Mahanalobis Binário: {predicao}")
+            self.label_resultado = tk.Label(image_window, text=f"Predição Mahanalobis Binário: {predicao}")
             self.label_resultado.grid(row=8, column=0, sticky="ns", padx=5)
         else:
-            self.label_resultado.config(text=f"Predicao Mahanalobis Binário: {predicao}")
+            self.label_resultado.config(text=f"Predição Mahanalobis Binário: {predicao}")
             self.label_resultado = None
 
     def viewMahanalobisCategorical(self, img_recortada_value, image_window):
@@ -278,10 +278,10 @@ class UInterface(Frame):
 
         # Criar ou atualizar widget para exibir os resultados na janela
         if self.label_resultado is None:
-            self.label_resultado = tk.Label(image_window, text=f"Predicao Mahanalobis Binário: {predicao}")
+            self.label_resultado = tk.Label(image_window, text=f"Predição Mahanalobis Categorical: {predicao}")
             self.label_resultado.grid(row=8, column=0, sticky="ns", padx=5)
         else:
-            self.label_resultado.config(text=f"Predicao Mahanalobis Binário: {predicao}")
+            self.label_resultado.config(text=f"Predição Mahanalobis Categorical: {predicao}")
             self.label_resultado = None
 
     def viewSegmentadas(self, dict_img_view, dict_distancia, dict_recortada):
