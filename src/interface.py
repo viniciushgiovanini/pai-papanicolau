@@ -208,6 +208,11 @@ class UInterface(Frame):
         segmentarMenu.add_command(label="Segmentação Por Equalização", command=lambda: self.equailizacao())
         menubar.add_cascade(label="Segmentação", menu=segmentarMenu)
 
+        # Botão de scatterplot.
+        scat = Menu(menubar)
+        scat.add_command(label="Scatterplot Binario", command=lambda: Process.genScatterplotCompBin(self, "./AI/csv_pt2_binario.csv", self.arquivo))
+        scat.add_command(label="Scatterplot Categorical", command=lambda: Process.genScatterplotCompCat(self, "./AI/csv_pt2_categorical.csv", self.arquivo))
+        menubar.add_cascade(label="Gerar Scatterplot", menu=scat)
         # Adicionar um campo de entrada de texto
         self.entry = Entry(self.parent)
         self.entry.grid(row=0, column=0, padx=380, pady=10)
@@ -243,6 +248,7 @@ class UInterface(Frame):
         else:
             self.label_resultado.config(text=f"Resultado Resnet Bin: {result}, Valor: {value}")
             self.label_resultado = None
+        self.label_resultado = None
 
 
     def viewResnetCategorical(self, img_recortada_value, image_window):
@@ -255,12 +261,13 @@ class UInterface(Frame):
         else:
             self.label_resultado.config(text=f"Resultado Resnet Categorical: {result}, Valor: {value}")
             self.label_resultado = None
+        self.label_resultado = None
 
     def viewMahanalobisBin(self, img_recortada_value, image_window):
         train_validation_instance = TrainValidation()
         objProcess = Process(self.verificarValue())
         imgInCV2 = objProcess.convertPILtoCV2(img_recortada_value)
-        predicao = train_validation_instance.classificarMahalanobis(imgInCV2, "./AI/csv_pt2_binario.csv")
+        predicao = train_validation_instance.classificarMahalanobis(imgInCV2, "./AI/csv_pt2_binario.csv", self.arquivo)
 
         # Criar ou atualizar widget para exibir os resultados na janela
         if self.label_resultado is None:
@@ -269,12 +276,14 @@ class UInterface(Frame):
         else:
             self.label_resultado.config(text=f"Predição Mahanalobis Binário: {predicao}")
             self.label_resultado = None
-
+        self.label_resultado = None
+        
+        
     def viewMahanalobisCategorical(self, img_recortada_value, image_window):
         train_validation_instance = TrainValidation()
         objProcess = Process(self.verificarValue())
         imgInCV2 = objProcess.convertPILtoCV2(img_recortada_value)
-        predicao = train_validation_instance.classificarMahalanobis(imgInCV2, "./AI/csv_pt2_categorical.csv")
+        predicao = train_validation_instance.classificarMahalanobis(imgInCV2, "./AI/csv_pt2_categorical.csv", self.arquivo)
 
         # Criar ou atualizar widget para exibir os resultados na janela
         if self.label_resultado is None:
@@ -283,6 +292,7 @@ class UInterface(Frame):
         else:
             self.label_resultado.config(text=f"Predição Mahanalobis Categorical: {predicao}")
             self.label_resultado = None
+        self.label_resultado = None
 
     def viewSegmentadas(self, dict_img_view, dict_distancia, dict_recortada):
         canvas_dois = tk.Canvas(self.parent)

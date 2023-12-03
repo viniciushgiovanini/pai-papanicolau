@@ -52,22 +52,22 @@ class TrainValidation:
     # Mahanalobis Binário.
     def calculaAreaPerimetroImagem(self, img_cv2):
   
-        imagem_cinza = cv2.cvtColor(img_cv2, cv2.COLOR_BGR2GRAY)
-        _, mascara_binaria = cv2.threshold(imagem_cinza, 1, 255, cv2.THRESH_BINARY)
-        contornos, _ = cv2.findContours(mascara_binaria, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        mascara_colorida = np.zeros_like(img_cv2)
-        cv2.drawContours(mascara_colorida, contornos, -1, (255, 255, 255), thickness=cv2.FILLED)
+      imagem_cinza = cv2.cvtColor(img_cv2, cv2.COLOR_BGR2GRAY)
+      _, mascara_binaria = cv2.threshold(imagem_cinza, 1, 255, cv2.THRESH_BINARY)
+      contornos, _ = cv2.findContours(mascara_binaria, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+      mascara_colorida = np.zeros_like(img_cv2)
+      cv2.drawContours(mascara_colorida, contornos, -1, (255, 255, 255), thickness=cv2.FILLED)
 
-        area_branca = np.sum(mascara_binaria == 255)
-        
-        
-        total_perimetro = 0
-        
-        for contorno in contornos:
-            perimeter = cv2.arcLength(contorno, closed=True)
-            total_perimetro += perimeter
-        
-        return area_branca, round(total_perimetro, 2)
+      area_branca = np.sum(mascara_binaria == 255)
+      
+      
+      total_perimetro = 0
+      
+      for contorno in contornos:
+          perimeter = cv2.arcLength(contorno, closed=True)
+          total_perimetro += perimeter
+      
+      return area_branca, round(total_perimetro, 2)
     
     # 4 PI area / perimetro^2
     def calcularCompacidade(self, img_cv2):
@@ -109,36 +109,63 @@ class TrainValidation:
             
             estatisticas_por_classe[classe] = {
                 'media': np.mean(classe_df[numeric_columns], axis=0),
-                'covariancia': np.cov(classe_df[numeric_columns], rowvar=False)
+                'covariancia':  np.atleast_2d(np.cov(classe_df[numeric_columns], rowvar=False))
             }
+
         return estatisticas_por_classe
     
     def gerarEstatisticas(self, path_csv, nomeArq):
         df = pd.read_csv(path_csv)
         
-        df = df[df["image_filename"] == nomeArq]
+        splitPath = nomeArq.split("/")
+        nomeImg = splitPath[len(splitPath)-1]
         
-        train_df, test_df = train_test_split(df, test_size=0.2, random_state=42)
-        estatisticas_treinamento = self.calcular_estatisticas_por_classe(train_df)
+        dfs = df[df["image_filename"] == nomeImg]
+        
+        estatisticas_treinamento = self.calcular_estatisticas_por_classe(dfs)
+
         return estatisticas_treinamento
     
     def classificar_mahalanobis(self, amostra, estatisticas_por_classe):
         distancias = {}
-        for classe, estatisticas in estatisticas_por_classe.items():
-            distancias[classe] = mahalanobis(amostra, estatisticas['media'], np.linalg.inv(estatisticas['covariancia']))
+        
+        for classe, estatisticas in estatisticas_por_classe.items():            
+            distancias[classe] = mahalanobis(amostra, estatisticas['media'], estatisticas['covariancia'])
+        
+
+        print("-----X-----")
+        print(amostra)
+        print(distancias)
+        print("-----X-----")
         return min(distancias, key=distancias.get)
     
     def classificarMahalanobis(self, img, csvPath, nomeArq):
+
+
         area, _ = self.calculaAreaPerimetroImagem(img)
         compacidade = self.calcularCompacidade(img)
         excentricidade = self.calcularExcentricidades(img)
+        
+        cv2.imshow('Imagem', img)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+        
+        print(area)
+        print(compacidade)
+        print(excentricidade)
 
         amostra = np.array([area, compacidade, excentricidade])
+        
+        print(nomeArq)
+        
         predicao = self.classificar_mahalanobis(amostra, self.gerarEstatisticas(os.getcwd() + csvPath, nomeArq))
         
         return predicao
       
       
 # train_validation_instance = TrainValidation()
-# img = cv2.imread(os.getcwd() + "./data/segmentation_dataset_binario/Negativo/6.png")
-# train_validation_instance.classificarMahalanobis(img)
+# img = cv2.imread(os.getcwd() + "/AI/data/segmentation_dataset_binario/Negativo/0a2a5a681410054941cc56f51eb8fbda.png-5636.png")
+
+# print(os.getcwd() + "/AI/data/segmentation_dataset_binario/Negativo/0a2a5a681410054941cc56f51eb8fbda.png-5636.png")
+
+# train_validation_instance.classificarMahalanobis(img, "/AI/csv_pt2_binario.csv", "0a2a5a681410054941cc56f51eb8fbda.png")

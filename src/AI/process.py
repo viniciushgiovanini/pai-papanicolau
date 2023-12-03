@@ -6,6 +6,8 @@ import os
 import math
 import math
 import warnings
+import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
 
 warnings.filterwarnings("ignore")
 
@@ -184,3 +186,73 @@ class Process():
             
     return img_dist_dict
 
+
+  def genScatterplotCompBin(self, path_csv, path_img):
+    
+    splitPath = path_img.split("/")
+    nomeImg = splitPath[len(splitPath)-1]
+  
+    df = pd.read_csv(path_csv)
+    
+    df = df[df["image_filename"] == nomeImg]
+      
+    cores = {'Negativo': 'black', 'Positivo': 'blue'}
+
+    # Adicionar uma coluna 'Cor' com as cores correspondentes às classes
+    df['Cor'] = df['label'].map(cores)
+    plt.figure(figsize=(8, 8))
+
+    # Plotar o scatterplot
+    plt.scatter(df['area'], df['compacidade'], c=df['Cor'], label=df['label'])
+
+    # Tamanho da Figura
+
+    # Adicionar rótulos e título
+    plt.xlabel('Área')
+    plt.ylabel('Compacidade')
+    plt.title('Scatterplot com Area por Compacidade')
+
+    # Criando patches das legendas
+    patches = [mpatches.Patch(color=color, label=label) for label, color in cores.items()]
+
+    # Adicionar uma legenda
+    plt.legend(handles=patches)
+
+    # Exibir o gráfico
+    plt.show()
+    
+    
+  def genScatterplotCompCat(self, path_csv, path_img):
+    
+    splitPath = path_img.split("/")
+    nomeImg = splitPath[len(splitPath)-1]
+    
+    
+    df = pd.read_csv(path_csv)
+    
+    df_filter = df[df["image_filename"] == nomeImg]
+
+    cores = {'Negative for intraepithelial lesion': 'black', 'ASC-H': 'blue', "ASC-US":"green", 'HSIL': 'red', 'LSIL': 'yellow','SCC': 'purple',}
+    # cores = {'Negativo': 'black', 'Positivo': 'blue'}
+
+    # Adicionar uma coluna 'Cor' com as cores correspondentes às classes
+    df_filter['Cor'] = df_filter['label'].map(cores)
+    plt.figure(figsize=(8, 8))
+
+    # Plotar o scatterplot
+    plt.scatter(df_filter['area'], df_filter['excentricidade'], c=df_filter['Cor'], label=df_filter['label'])
+
+    # Tamanho da Figura
+
+    plt.xlabel('Área')
+    plt.ylabel('Compacidade')
+    plt.title('Scatterplot com Area por Compacidade')
+
+    # Criando patches das legendas
+    patches = [mpatches.Patch(color=color, label=label) for label, color in cores.items()]
+
+    # Adicionar uma legenda
+    plt.legend(handles=patches)
+
+    # Exibir o gráfico
+    plt.show()
