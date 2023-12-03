@@ -240,59 +240,61 @@ class UInterface(Frame):
     # Função para exibir resultados Resnet Bin
     def viewResnetBin(self, img_recortada_value, image_window):
         result, value = TrainValidation.classificarResnet(img_recortada_value, True, self.modelBinario)
+        
+        t = f"Resultado Resnet Bin: {result}, Valor: {value}"
 
-        # Criar ou atualizar widget para exibir os resultados na janela
-        if self.label_resultado is None:
-            self.label_resultado = tk.Label(image_window, text=f"Resultado Resnet Bin: {result}, Valor: {value}")
-            self.label_resultado.grid(row=8, column=0, sticky="ns", padx=5)
+        if self.label_resultado == None:
+          self.label_resultado = tk.Label(image_window, text=t)
+          self.label_resultado.grid(row=8, column=0, sticky="ns", padx=5)
         else:
-            self.label_resultado.config(text=f"Resultado Resnet Bin: {result}, Valor: {value}")
-            self.label_resultado = None
-        self.label_resultado = None
-
+          self.label_resultado.configure(text=t)
+          
+        image_window.update()
 
     def viewResnetCategorical(self, img_recortada_value, image_window):
         result, value = TrainValidation.classificarResnet(img_recortada_value, False, self.modelCategorical)
-
-        # Criar ou atualizar widget para exibir os resultados na janela
-        if self.label_resultado is None:
-            self.label_resultado = tk.Label(image_window, text=f"Resultado Resnet Categorical: {result}, Valor: {value}")
-            self.label_resultado.grid(row=8, column=0, sticky="ns", padx=5)
+        
+        t = f"Resultado Resnet Categorical: {result}, Valor: {value}"
+        
+        if self.label_resultado == None:
+          self.label_resultado = tk.Label(image_window, text=t)
+          self.label_resultado.grid(row=8, column=0, sticky="ns", padx=5)
         else:
-            self.label_resultado.config(text=f"Resultado Resnet Categorical: {result}, Valor: {value}")
-            self.label_resultado = None
-        self.label_resultado = None
+          self.label_resultado.configure(text=t)
+          
+        image_window.update()
 
     def viewMahanalobisBin(self, img_recortada_value, image_window):
         train_validation_instance = TrainValidation()
         objProcess = Process(self.verificarValue())
         imgInCV2 = objProcess.convertPILtoCV2(img_recortada_value)
         predicao = train_validation_instance.classificarMahalanobis(imgInCV2, "./AI/csv_pt2_binario.csv", self.arquivo)
-
-        # Criar ou atualizar widget para exibir os resultados na janela
-        if self.label_resultado is None:
-            self.label_resultado = tk.Label(image_window, text=f"Predição Mahanalobis Binário: {predicao}")
-            self.label_resultado.grid(row=8, column=0, sticky="ns", padx=5)
-        else:
-            self.label_resultado.config(text=f"Predição Mahanalobis Binário: {predicao}")
-            self.label_resultado = None
-        self.label_resultado = None
         
+        t = f"Predição Mahanalobis Binário: {predicao}"
+
+        if self.label_resultado == None:
+          self.label_resultado = tk.Label(image_window, text=t)
+          self.label_resultado.grid(row=8, column=0, sticky="ns", padx=5)
+        else:
+          self.label_resultado.configure(text=t)
+        
+        image_window.update()
         
     def viewMahanalobisCategorical(self, img_recortada_value, image_window):
         train_validation_instance = TrainValidation()
         objProcess = Process(self.verificarValue())
         imgInCV2 = objProcess.convertPILtoCV2(img_recortada_value)
         predicao = train_validation_instance.classificarMahalanobis(imgInCV2, "./AI/csv_pt2_categorical.csv", self.arquivo)
+        
+        t = f"Predição Mahanalobis Categorical: {predicao}"
 
-        # Criar ou atualizar widget para exibir os resultados na janela
-        if self.label_resultado is None:
-            self.label_resultado = tk.Label(image_window, text=f"Predição Mahanalobis Categorical: {predicao}")
-            self.label_resultado.grid(row=8, column=0, sticky="ns", padx=5)
+        if self.label_resultado == None:
+          self.label_resultado = tk.Label(image_window, text=t)
+          self.label_resultado.grid(row=8, column=0, sticky="ns", padx=5)
         else:
-            self.label_resultado.config(text=f"Predição Mahanalobis Categorical: {predicao}")
-            self.label_resultado = None
-        self.label_resultado = None
+          self.label_resultado.configure(text=t)
+          
+        image_window.update()
 
     def viewSegmentadas(self, dict_img_view, dict_distancia, dict_recortada):
         canvas_dois = tk.Canvas(self.parent)
