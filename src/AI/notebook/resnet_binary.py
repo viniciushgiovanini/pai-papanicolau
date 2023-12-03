@@ -59,7 +59,7 @@ checkpoint = ModelCheckpoint('best_model.hdf5', monitor='val_recall', verbose=1,
 
 resultados = model.fit(
     train_dataset,
-    steps_per_epoch=140,
+    steps_per_epoch=60,
     epochs=epochs,
     validation_data=test_dataset,
     callbacks=[checkpoint]

@@ -53,7 +53,7 @@ model.compile(optimizer=optimizer, loss='categorical_crossentropy', metrics=['ac
 # Exiba um resumo do modelo
 start_time = time.time()
 
-epochs = 200
+epochs = 205
 
 checkpoint = ModelCheckpoint('best_model.hdf5', monitor='val_recall', verbose=1, save_best_only=True, mode='max')
 

@@ -1,0 +1,31 @@
+for layer in base_model.layers:
+    layer.trainable = False
+
+# Create a new model by adding layers on top of the base model
+
+model = Sequential()
+
+model.add(base_model)
+model.add(GlobalAveragePooling2D())
+model.add(Dense(256, activation='relu'))
+model.add(Dropout(0.5))
+model.add(Dense(1, activation='sigmoid'))
+
+
+model.compile(optimizer='rmsprop', loss='binary_crossentropy', metrics=['accuracy'])
+
+# Exiba um resumo do modelo
+start_time = time.time()
+
+epochs = 105
+
+
+checkpoint = ModelCheckpoint('best_model.hdf5', monitor='val_recall', verbose=1, save_best_only=True, mode='max')
+
+resultados = model.fit(
+    train_dataset,
+    steps_per_epoch=60,
+    epochs=epochs,
+    validation_data=test_dataset,
+    callbacks=[checkpoint]
+)
