@@ -113,8 +113,11 @@ class TrainValidation:
             }
         return estatisticas_por_classe
     
-    def gerarEstatisticas(self, path_csv):
+    def gerarEstatisticas(self, path_csv, nomeArq):
         df = pd.read_csv(path_csv)
+        
+        df = df[df["image_filename"] == nomeArq]
+        
         train_df, test_df = train_test_split(df, test_size=0.2, random_state=42)
         estatisticas_treinamento = self.calcular_estatisticas_por_classe(train_df)
         return estatisticas_treinamento
@@ -125,12 +128,17 @@ class TrainValidation:
             distancias[classe] = mahalanobis(amostra, estatisticas['media'], np.linalg.inv(estatisticas['covariancia']))
         return min(distancias, key=distancias.get)
     
-    def classificarMahalanobis(self, img, csvPath):
+    def classificarMahalanobis(self, img, csvPath, nomeArq):
         area, _ = self.calculaAreaPerimetroImagem(img)
         compacidade = self.calcularCompacidade(img)
         excentricidade = self.calcularExcentricidades(img)
 
         amostra = np.array([area, compacidade, excentricidade])
-        predicao = self.classificar_mahalanobis(amostra, self.gerarEstatisticas(os.getcwd() + csvPath))
+        predicao = self.classificar_mahalanobis(amostra, self.gerarEstatisticas(os.getcwd() + csvPath, nomeArq))
         
         return predicao
+      
+      
+# train_validation_instance = TrainValidation()
+# img = cv2.imread(os.getcwd() + "./data/segmentation_dataset_binario/Negativo/6.png")
+# train_validation_instance.classificarMahalanobis(img)
