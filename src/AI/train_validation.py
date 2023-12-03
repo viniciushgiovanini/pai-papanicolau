@@ -12,6 +12,7 @@ import os
 from scipy.spatial.distance import mahalanobis
 import pandas as pd
 from sklearn.model_selection import train_test_split, cross_val_predict
+from sklearn.covariance import LedoitWolf
 import warnings
 
 warnings.filterwarnings("ignore")
@@ -109,7 +110,8 @@ class TrainValidation:
             
             estatisticas_por_classe[classe] = {
                 'media': np.mean(classe_df[numeric_columns], axis=0),
-                'covariancia':  np.atleast_2d(np.cov(classe_df[numeric_columns], rowvar=False))
+                # 'covariancia':  np.cov(classe_df[numeric_columns], rowvar=False)
+                'covariancia': LedoitWolf().fit(classe_df[numeric_columns]).covariance_
             }
 
         return estatisticas_por_classe
@@ -129,14 +131,17 @@ class TrainValidation:
     def classificar_mahalanobis(self, amostra, estatisticas_por_classe):
         distancias = {}
         
-        for classe, estatisticas in estatisticas_por_classe.items():            
-            distancias[classe] = mahalanobis(amostra, estatisticas['media'], estatisticas['covariancia'])
+        for classe, estatisticas in estatisticas_por_classe.items():   
+          
+            # calcular matrix inversa
+            try:
+              mat_inv = np.linalg.inv( estatisticas['covariancia'])
+            except:
+              mat_inv = np.linalg.inv( estatisticas['covariancia'])
+
+            distancias[classe] = mahalanobis(amostra, estatisticas['media'], mat_inv)
         
 
-        print("-----X-----")
-        print(amostra)
-        print(distancias)
-        print("-----X-----")
         return min(distancias, key=distancias.get)
     
     def classificarMahalanobis(self, img, csvPath, nomeArq):
@@ -145,18 +150,8 @@ class TrainValidation:
         area, _ = self.calculaAreaPerimetroImagem(img)
         compacidade = self.calcularCompacidade(img)
         excentricidade = self.calcularExcentricidades(img)
-        
-        cv2.imshow('Imagem', img)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
-        
-        print(area)
-        print(compacidade)
-        print(excentricidade)
 
         amostra = np.array([area, compacidade, excentricidade])
-        
-        print(nomeArq)
         
         predicao = self.classificar_mahalanobis(amostra, self.gerarEstatisticas(os.getcwd() + csvPath, nomeArq))
         

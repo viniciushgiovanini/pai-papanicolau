@@ -347,8 +347,8 @@ class UInterface(Frame):
 
         # Botão de Classificações.
         classificationMenu = Menu(menubar)
-        classificationMenu.add_command(label="Mahalanobis Binário", command=lambda: self.viewMahanalobisBin(img_recortada_value, image_window))
-        classificationMenu.add_command(label="Mahalanobis Categórico", command=lambda: self.viewMahanalobisCategorical(img_recortada_value, image_window))
+        classificationMenu.add_command(label="Mahalanobis Binário", command=lambda: self.viewMahanalobisBin(img, image_window))
+        classificationMenu.add_command(label="Mahalanobis Categórico", command=lambda: self.viewMahanalobisCategorical(img, image_window))
         classificationMenu.add_command(label="CNN Resnet Binária", command=lambda: self.viewResnetBin(img_recortada_value, image_window))
         classificationMenu.add_command(label="CNN Resnet Categórico", command=lambda: self.viewResnetCategorical(img_recortada_value, image_window))
         menubar.add_cascade(label="Classificação", menu=classificationMenu)
