@@ -3,23 +3,27 @@ from keras.preprocessing.image import ImageDataGenerator
 import matplotlib.pyplot as plt
 from tensorflow.keras.models import Sequential, Model
 from tensorflow.keras.layers import GlobalAveragePooling2D, Dense,Dropout
-from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.optimizers import Adam, RMSprop
 from tensorflow.keras.applications import EfficientNetB0
+from tensorflow.keras.callbacks import ModelCheckpoint
 import time
+import numpy as np
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+import seaborn as sns
 
 tf.config.list_physical_devices()
 train_datagen = ImageDataGenerator(rescale=1./255)
 test_datagen = ImageDataGenerator(rescale=1./255)
 
 train_dataset = train_datagen.flow_from_directory(
-        '../data/segmentation_dataset_binario_treino/train',
-        target_size=(224, 224),
+        '../data/cnn_treino_binario/train',
+        target_size=(100, 100),
         batch_size=32,
         class_mode='binary',color_mode='rgb')
 
 test_dataset = test_datagen.flow_from_directory(
-        '../data/segmentation_dataset_binario_treino/test/',
-        target_size=(224, 224),
+        '../data/cnn_treino_binario/test/',
+        target_size=(100, 100),
         batch_size=32,
         class_mode='binary',color_mode='rgb')
 
@@ -33,26 +37,36 @@ for layer in base_model.layers:
     layer.trainable = False
 
 # Create a new model by adding layers on top of the base model
-model = Sequential([
-    base_model,
-    GlobalAveragePooling2D(),
-    Dense(128, activation='relu'),
-    # Dropout(0.5), 
-    Dense(1, activation='sigmoid')  # Binary classification, so use sigmoid activation
-])
 
-model.compile(optimizer='rmsprop', loss='binary_crossentropy', metrics=['accuracy',tf.keras.metrics.BinaryAccuracy(), tf.keras.metrics.F1Score(threshold=0.5)])
+model = Sequential()
+
+model.add(base_model)
+model.add(GlobalAveragePooling2D())
+model.add(Dense(256, activation='relu'))
+model.add(Dropout(0.5))
+model.add(Dense(1, activation='sigmoid'))
+
+
+rmsprop = RMSprop(learning_rate=0.004)
+
+model.compile(optimizer=rmsprop, loss='binary_crossentropy', metrics=['accuracy'])
 
 # Exiba um resumo do modelo
 start_time = time.time()
 
-epochs = 20
+epochs = 15
+
+
+checkpoint = ModelCheckpoint('melhor_modelo_acuracia.hdf5', monitor='val_acurracy', verbose=1, save_best_only=True, mode='max')
 
 resultados = model.fit(
     train_dataset,
+    steps_per_epoch=20,
     epochs=epochs,
-    validation_data=test_dataset
+    validation_data=test_dataset,
+    callbacks=[checkpoint]
 )
+
 
 end_time = time.time()
 
@@ -64,13 +78,27 @@ print("#######################################")
 print("Tempo de treinamento:", tempo_de_treinamento, "minutos")
 print("#######################################")
 
-plt.plot(resultados.history["f1_score"])
-plt.title("Histórico de Treinamento")
-plt.ylabel("Função de Custo")
-plt.xlabel("Épocas de treinamento")
-plt.legend(["F1-Score"])
-plt.savefig("f1_score_binary.png")
-plt.clf()
+
+########################################
+#       PLOTAR MATRIX DE CONFUSAO      #
+########################################
+
+y_true = test_dataset.classes
+y_pred = model.predict(test_dataset)
+y_pred_classes = np.argmax(y_pred, axis=1)
+
+conf_mat = confusion_matrix(y_true, y_pred_classes)
+
+plt.figure(figsize=(15, 15))
+sns.heatmap(conf_mat, annot=True, fmt='d', cmap='Blues', cbar=False,
+            xticklabels=train_dataset.class_indices.keys(),
+            yticklabels=train_dataset.class_indices.keys())
+plt.title('Confusion Matrix')
+plt.xlabel('Predicted')
+plt.ylabel('True')
+plt.savefig(f"graph/efficienty/binario/matrizdeconfusao_{epochs}.png")
+plt.close()
+
 
 
 plt.plot(resultados.history["loss"])
@@ -79,19 +107,9 @@ plt.title("Histórico de Treinamento")
 plt.ylabel("Função de Custo")
 plt.xlabel("Épocas de treinamento")
 plt.legend(["Erro treino", "Erro teste"])
-plt.savefig("graph/loss_binary.png")
+plt.savefig("graph/efficienty/binario/loss_binary.png")
 plt.clf()
 
-
-
-plt.plot(resultados.history["binary_accuracy"])
-plt.plot(resultados.history["val_binary_accuracy"])
-plt.title("Histórico de Treinamento")
-plt.ylabel("Função de Custo")
-plt.xlabel("Épocas de treinamento")
-plt.legend(["Acuracia Binaria treino", "Acuracia Binaria teste"])
-plt.savefig("graph/acuracia_binary.png")
-plt.clf()
 
 
 plt.plot(resultados.history["accuracy"])
@@ -100,7 +118,7 @@ plt.title("Histórico de Treinamento")
 plt.ylabel("Função de Custo")
 plt.xlabel("Épocas de treinamento")
 plt.legend(["Acuracia treino", "Acuracia teste"])
-plt.savefig("graph/acuracia.png")
+plt.savefig("graph/efficienty/binario/acuracia.png")
 plt.clf()
 
 model.save(f"model/modelo_treinado_teste_{str(epochs)}.h5")

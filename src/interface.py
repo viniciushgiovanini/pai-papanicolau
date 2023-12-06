@@ -8,6 +8,9 @@ from AI.process import Process
 from AI.segmentation import Segmentation
 from AI.train_validation import TrainValidation
 from keras.models import load_model
+import warnings
+
+warnings.filterwarnings("ignore")
 
 #############################################
 #                 Metodos                   #
@@ -176,10 +179,11 @@ class Zoom_Advanced(ttk.Frame):
 
 class UInterface(Frame):
     def __init__(self, parent):
-        Frame.__init__(self, parent)   
+        Frame.__init__(self, parent)
 
-
-        self.modelBinario = load_model(os.getcwd() + "/AI/notebook/model/binario/modelo_treinado_teste_100_sem_dropout.h5")        
+        self.label_resultado = None
+        self.modelBinario = load_model(os.getcwd() + "/AI/notebook/model/binario/modelo_treinado_teste_100_sem_dropout.h5")
+        self.modelCategorical = load_model(os.getcwd() + "/AI/notebook/model/categorical/modelo_treinado_teste_categorical_200.h5")
         self.parent = parent
         self.imagem = None
         self.arquivo = None
@@ -204,6 +208,11 @@ class UInterface(Frame):
         segmentarMenu.add_command(label="Segmentação Por Equalização", command=lambda: self.equailizacao())
         menubar.add_cascade(label="Segmentação", menu=segmentarMenu)
 
+        # Botão de scatterplot.
+        scat = Menu(menubar)
+        scat.add_command(label="Scatterplot Binario", command=lambda: Process.genScatterplotCompBin(self, "./AI/csv_pt2_binario.csv", self.arquivo))
+        scat.add_command(label="Scatterplot Categorical", command=lambda: Process.genScatterplotCompCat(self, "./AI/csv_pt2_categorical.csv", self.arquivo))
+        menubar.add_cascade(label="Gerar Scatterplot", menu=scat)
         # Adicionar um campo de entrada de texto
         self.entry = Entry(self.parent)
         self.entry.grid(row=0, column=0, padx=380, pady=10)
@@ -231,20 +240,61 @@ class UInterface(Frame):
     # Função para exibir resultados Resnet Bin
     def viewResnetBin(self, img_recortada_value, image_window):
         result, value = TrainValidation.classificarResnet(img_recortada_value, True, self.modelBinario)
+        
+        t = f"Resultado Resnet Bin: {result}, Valor: {value}"
 
-        # Criar widget para exibir os resultados na janela
-        label_resultado = tk.Label(image_window, text=f"Resultado Resnet Bin: {result}, Valor: {value}")
-        label_resultado.grid(row=8, column=0, sticky="ns", padx=5)
+        if self.label_resultado == None:
+          self.label_resultado = tk.Label(image_window, text=t)
+          self.label_resultado.grid(row=8, column=0, sticky="ns", padx=5)
+        else:
+          self.label_resultado.configure(text=t)
+          
+        image_window.update()
+
+    def viewResnetCategorical(self, img_recortada_value, image_window):
+        result, value = TrainValidation.classificarResnet(img_recortada_value, False, self.modelCategorical)
+        
+        t = f"Resultado Resnet Categorical: {result}, Valor: {value}"
+        
+        if self.label_resultado == None:
+          self.label_resultado = tk.Label(image_window, text=t)
+          self.label_resultado.grid(row=8, column=0, sticky="ns", padx=5)
+        else:
+          self.label_resultado.configure(text=t)
+          
+        image_window.update()
 
     def viewMahanalobisBin(self, img_recortada_value, image_window):
         train_validation_instance = TrainValidation()
         objProcess = Process(self.verificarValue())
         imgInCV2 = objProcess.convertPILtoCV2(img_recortada_value)
-        predicao = train_validation_instance.classificarMahalanobis(imgInCV2)
+        predicao = train_validation_instance.classificarMahalanobis(imgInCV2, "./AI/csv_pt2_binario.csv", self.arquivo)
+        
+        t = f"Predição Mahanalobis Binário: {predicao}"
 
-        # Criar widget para exibir os resultados na janela
-        label_resultado = tk.Label(image_window, text=f"Predicao Mahanalobis Binário: {predicao}")
-        label_resultado.grid(row=8, column=0, sticky="ns", padx=5)
+        if self.label_resultado == None:
+          self.label_resultado = tk.Label(image_window, text=t)
+          self.label_resultado.grid(row=8, column=0, sticky="ns", padx=5)
+        else:
+          self.label_resultado.configure(text=t)
+        
+        image_window.update()
+        
+    def viewMahanalobisCategorical(self, img_recortada_value, image_window):
+        train_validation_instance = TrainValidation()
+        objProcess = Process(self.verificarValue())
+        imgInCV2 = objProcess.convertPILtoCV2(img_recortada_value)
+        predicao = train_validation_instance.classificarMahalanobis(imgInCV2, "./AI/csv_pt2_categorical.csv", self.arquivo)
+        
+        t = f"Predição Mahanalobis Categorical: {predicao}"
+
+        if self.label_resultado == None:
+          self.label_resultado = tk.Label(image_window, text=t)
+          self.label_resultado.grid(row=8, column=0, sticky="ns", padx=5)
+        else:
+          self.label_resultado.configure(text=t)
+          
+        image_window.update()
 
     def viewSegmentadas(self, dict_img_view, dict_distancia, dict_recortada):
         canvas_dois = tk.Canvas(self.parent)
@@ -299,10 +349,10 @@ class UInterface(Frame):
 
         # Botão de Classificações.
         classificationMenu = Menu(menubar)
-        classificationMenu.add_command(label="Mahalanobis Binário", command=lambda: self.viewMahanalobisBin(img_recortada_value, image_window))
-        # classificationMenu.add_command(label="Mahalanobis Categórico", command=lambda: self.equailizacao())
-        # classificationMenu.add_command(label="CNN EfficientNet Binária", command=lambda: self.equailizacao())
+        classificationMenu.add_command(label="Mahalanobis Binário", command=lambda: self.viewMahanalobisBin(img, image_window))
+        classificationMenu.add_command(label="Mahalanobis Categórico", command=lambda: self.viewMahanalobisCategorical(img, image_window))
         classificationMenu.add_command(label="CNN Resnet Binária", command=lambda: self.viewResnetBin(img_recortada_value, image_window))
+        classificationMenu.add_command(label="CNN Resnet Categórico", command=lambda: self.viewResnetCategorical(img_recortada_value, image_window))
         menubar.add_cascade(label="Classificação", menu=classificationMenu)
         
         obj = Zoom_Advanced(image_window, self.arquivo, imagem=img, resize=(600, 600))

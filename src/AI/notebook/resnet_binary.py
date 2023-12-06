@@ -3,10 +3,13 @@ from keras.preprocessing.image import ImageDataGenerator
 import matplotlib.pyplot as plt
 from tensorflow.keras.models import Sequential, Model
 from tensorflow.keras.layers import GlobalAveragePooling2D, Dense,Dropout
-from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.optimizers import Adam, RMSprop
 from tensorflow.keras.applications import ResNet50
 from tensorflow.keras.callbacks import ModelCheckpoint
 import time
+import numpy as np
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+import seaborn as sns
 
 tf.config.list_physical_devices()
 train_datagen = ImageDataGenerator(rescale=1./255)
@@ -40,35 +43,30 @@ model = Sequential()
 model.add(base_model)
 model.add(GlobalAveragePooling2D())
 model.add(Dense(256, activation='relu'))
-model.add(Dropout(0.5))
+# model.add(Dropout(0.5))
 model.add(Dense(1, activation='sigmoid'))
 
 
-model.compile(optimizer='rmsprop', loss='binary_crossentropy', metrics=['accuracy'])
+rmsprop = RMSprop(learning_rate=0.009)
+
+model.compile(optimizer=rmsprop, loss='binary_crossentropy', metrics=['accuracy'])
 
 # Exiba um resumo do modelo
 start_time = time.time()
 
-epochs = 100
+epochs = 15
 
 
-checkpoint = ModelCheckpoint('best_model.hdf5', monitor='val_recall', verbose=1, save_best_only=True, mode='max')
+checkpoint = ModelCheckpoint('melhor_modelo_acuracia.hdf5', monitor='val_acurracy', verbose=1, save_best_only=True, mode='max')
 
 resultados = model.fit(
     train_dataset,
-    steps_per_epoch=100,
+    steps_per_epoch=20,
     epochs=epochs,
     validation_data=test_dataset,
     callbacks=[checkpoint]
 )
 
-
-# resultados = model.fit_generator(
-#   train_dataset,
-#   steps_per_epoch=60,
-#   epochs=epochs,
-#   validation_data=test_dataset,
-#   callbacks=[checkpoint])
 
 end_time = time.time()
 
@@ -80,13 +78,36 @@ print("#######################################")
 print("Tempo de treinamento:", tempo_de_treinamento, "minutos")
 print("#######################################")
 
+
+########################################
+#       PLOTAR MATRIX DE CONFUSAO      #
+########################################
+
+y_true = test_dataset.classes
+y_pred = model.predict(test_dataset)
+y_pred_classes = np.argmax(y_pred, axis=1)
+
+conf_mat = confusion_matrix(y_true, y_pred_classes)
+
+plt.figure(figsize=(15, 15))
+sns.heatmap(conf_mat, annot=True, fmt='d', cmap='Blues', cbar=False,
+            xticklabels=train_dataset.class_indices.keys(),
+            yticklabels=train_dataset.class_indices.keys())
+plt.title('Confusion Matrix')
+plt.xlabel('Predicted')
+plt.ylabel('True')
+plt.savefig(f"graph/resnet/binario/matrizdeconfusao_{epochs}.png")
+plt.close()
+
+
+
 plt.plot(resultados.history["loss"])
 plt.plot(resultados.history["val_loss"])
 plt.title("Histórico de Treinamento")
 plt.ylabel("Função de Custo")
 plt.xlabel("Épocas de treinamento")
 plt.legend(["Erro treino", "Erro teste"])
-plt.savefig("graph/resnet/loss_binary.png")
+plt.savefig("graph/resnet/binario/loss_binary.png")
 plt.clf()
 
 
@@ -97,7 +118,7 @@ plt.title("Histórico de Treinamento")
 plt.ylabel("Função de Custo")
 plt.xlabel("Épocas de treinamento")
 plt.legend(["Acuracia treino", "Acuracia teste"])
-plt.savefig("graph/resnet/acuracia.png")
+plt.savefig("graph/resnet/binario/acuracia.png")
 plt.clf()
 
 model.save(f"model/modelo_treinado_teste_{str(epochs)}.h5")
