@@ -3,7 +3,7 @@ from keras.preprocessing.image import ImageDataGenerator
 import matplotlib.pyplot as plt
 from tensorflow.keras.models import Sequential, Model
 from tensorflow.keras.layers import GlobalAveragePooling2D, Dense,Dropout
-from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.optimizers import Adam, RMSprop
 from tensorflow.keras.applications import ResNet50
 from tensorflow.keras.callbacks import ModelCheckpoint
 import time
@@ -43,23 +43,25 @@ model = Sequential()
 model.add(base_model)
 model.add(GlobalAveragePooling2D())
 model.add(Dense(256, activation='relu'))
-model.add(Dropout(0.5))
+# model.add(Dropout(0.5))
 model.add(Dense(1, activation='sigmoid'))
 
 
-model.compile(optimizer='rmsprop', loss='binary_crossentropy', metrics=['accuracy'])
+rmsprop = RMSprop(learning_rate=0.009)
+
+model.compile(optimizer=rmsprop, loss='binary_crossentropy', metrics=['accuracy'])
 
 # Exiba um resumo do modelo
 start_time = time.time()
 
-epochs = 105
+epochs = 15
 
 
-checkpoint = ModelCheckpoint('best_model.hdf5', monitor='val_recall', verbose=1, save_best_only=True, mode='max')
+checkpoint = ModelCheckpoint('melhor_modelo_acuracia.hdf5', monitor='val_acurracy', verbose=1, save_best_only=True, mode='max')
 
 resultados = model.fit(
     train_dataset,
-    steps_per_epoch=60,
+    steps_per_epoch=20,
     epochs=epochs,
     validation_data=test_dataset,
     callbacks=[checkpoint]
