@@ -48,6 +48,7 @@ model.add(Dense(1, activation='sigmoid'))
 
 
 rmsprop = RMSprop(learning_rate=0.009)
+# rmsprop = RMSprop(learning_rate=0.001)
 
 model.compile(optimizer=rmsprop, loss='binary_crossentropy', metrics=['accuracy'])
 
