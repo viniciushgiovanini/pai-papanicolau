@@ -46,7 +46,6 @@ class TrainValidation:
         else:
             dictClassifier = {"ASC-H": 0, "ASC-US" : 1, "HSIL": 2, "LSIL": 3, "Negative": 4, "SCC": 5}
             for i,each in enumerate(dictClassifier):
-            
                 if(valu_posi == i):
                     return each, value[0]
                 
@@ -137,7 +136,7 @@ class TrainValidation:
             try:
               mat_inv = np.linalg.inv( estatisticas['covariancia'])
             except:
-              mat_inv = np.linalg.inv( estatisticas['covariancia'])
+              mat_inv = estatisticas['covariancia']
 
             distancias[classe] = mahalanobis(amostra, estatisticas['media'], mat_inv)
         
@@ -156,11 +155,3 @@ class TrainValidation:
         predicao = self.classificar_mahalanobis(amostra, self.gerarEstatisticas(os.getcwd() + csvPath, nomeArq))
         
         return predicao
-      
-      
-# train_validation_instance = TrainValidation()
-# img = cv2.imread(os.getcwd() + "/AI/data/segmentation_dataset_binario/Negativo/0a2a5a681410054941cc56f51eb8fbda.png-5636.png")
-
-# print(os.getcwd() + "/AI/data/segmentation_dataset_binario/Negativo/0a2a5a681410054941cc56f51eb8fbda.png-5636.png")
-
-# train_validation_instance.classificarMahalanobis(img, "/AI/csv_pt2_binario.csv", "0a2a5a681410054941cc56f51eb8fbda.png")

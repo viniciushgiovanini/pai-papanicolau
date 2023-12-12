@@ -347,6 +347,8 @@ class UInterface(Frame):
         menubar = Menu(image_window)
         image_window.config(menu=menubar)
 
+        self.label_resultado = None
+        
         # Botão de Classificações.
         classificationMenu = Menu(menubar)
         classificationMenu.add_command(label="Mahalanobis Binário", command=lambda: self.viewMahanalobisBin(img, image_window))
